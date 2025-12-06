@@ -8,6 +8,39 @@ A small CLI soldier that goes hand in hand with a developer. An agentic answer f
 ## Development
 
 Shortest way to build the command is
+
 ```shell
 go install . && hange -h  
 ```
+
+## Techs
+
+This project is powered by [Go Cobra library](https://github.com/spf13/cobra) that provides the framework for CLI
+applications.
+
+## Installation
+
+Hange can be installed by 2 ways:
+
+1. Install it from GitHub repository by specific tag
+    ```shell
+    go install github.com/yaroslav-koval/hange
+    ```
+2. Clone this repo locally and install using
+   ```shell
+   go install .
+    ```
+
+## Project structure
+
+Despite this is CLI project, it's created in platform-agnostic way, so modules can be used in other scenarios, like
+HTTP, etc.
+
+Some of the modules, like [auth](pkg/auth) contains business logic that is implemented by adapters. Adapters resides
+near the main folder, so the structure looks like:
+
+* `auth` - contains business logic and interface declarations of both types: driver and driven. Here resides declaration
+  and
+  implementation for a driver interface(s).
+* `auth/adapter1` - implements one of driven interfaces
+* `auth/adapter2` - implements another driven interface
