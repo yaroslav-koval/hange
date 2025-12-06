@@ -3,7 +3,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"os"
+	"log/slog"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -17,17 +17,13 @@ var versionCmd = &cobra.Command{
 		r := viper.New()
 		r.SetConfigType("yaml")
 
-		cfg := make([]byte, len(buildConfig))
-		copy(cfg, buildConfig)
+		buildCfg := getBuildConfig()
 
-		if err := r.ReadConfig(bytes.NewBuffer(cfg)); err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "Failed to read version: %s\n", err)
+		if err := r.ReadConfig(bytes.NewBuffer(buildCfg)); err != nil {
+			slog.Info(fmt.Sprintf("Failed to read version: %s\n", err))
 		}
 
-		_, err := fmt.Fprintln(os.Stderr, fmt.Sprintf("hange version %s", r.GetString("version")))
-		if err != nil {
-			return err
-		}
+		slog.Info(fmt.Sprintf("hange version %s", r.GetString("version")))
 
 		return nil
 	},
@@ -35,14 +31,4 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// versionCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// versionCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
