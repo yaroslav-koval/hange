@@ -1,13 +1,13 @@
 package config
 
-import (
-	"github.com/spf13/viper"
-)
-
 func WriteField(field string, value any) error {
-	viper.Set(field, value)
+	return globalConfigurator.writeField(field, value)
+}
 
-	err := viper.WriteConfig()
+func (c *configurator) writeField(field string, value any) error {
+	c.viper.Set(field, value)
+
+	err := c.viper.WriteConfig()
 	if err != nil {
 		return err
 	}
@@ -17,5 +17,10 @@ func WriteField(field string, value any) error {
 
 func ReadField(field string) any {
 	// if Viper's AutomaticEnv is enabled, it tries to read value not only from config, but also from environment variables
-	return viper.Get(field)
+	return globalConfigurator.readField(field)
+}
+
+func (c *configurator) readField(field string) any {
+	// if Viper's AutomaticEnv is enabled, it tries to read value not only from config, but also from environment variables
+	return c.viper.Get(field)
 }

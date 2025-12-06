@@ -14,13 +14,15 @@ func TestInitCLIConfig(t *testing.T) {
 	fileName := "." + consts.AppName
 	th := &tempHome{}
 
+	vip := viper.New()
+
 	t.Run("test create if not exists", func(t *testing.T) {
 		tempHomeDir := th.createTempHome(t)
 		defer th.restoreHome(t)
 
 		// config doesn't exist at this moment, InitCLIConfig should initialize a new config
 
-		err := InitCLIConfig("")
+		err := initCLIConfig(vip, "")
 		require.NoError(t, err)
 
 		dir, err := os.ReadDir(tempHomeDir)
@@ -48,7 +50,7 @@ func TestInitCLIConfig(t *testing.T) {
 		err := os.WriteFile(cfgPath, configContent, 0644)
 		require.NoError(t, err)
 
-		err = InitCLIConfig("")
+		err = initCLIConfig(vip, "")
 		require.NoError(t, err)
 
 		actualFileContent, err := os.ReadFile(cfgPath)
@@ -67,7 +69,7 @@ func TestInitCLIConfig(t *testing.T) {
 		err := os.WriteFile(cfgPath, configContent, 0644)
 		require.NoError(t, err)
 
-		err = InitCLIConfig(cfgPath)
+		err = initCLIConfig(vip, cfgPath)
 		require.NoError(t, err)
 
 		actualFileContent, err := os.ReadFile(cfgPath)
@@ -81,7 +83,7 @@ func TestInitCLIConfig(t *testing.T) {
 		tempDir := t.TempDir()
 		cfgPath := tempDir + "/" + fileName
 
-		err := InitCLIConfig(cfgPath)
+		err := initCLIConfig(vip, cfgPath)
 		require.ErrorIsf(t, err, os.ErrNotExist, "config shouldn't be created by custom path if it doesn't exist")
 	})
 
@@ -94,10 +96,10 @@ func TestInitCLIConfig(t *testing.T) {
 		err := os.WriteFile(cfgPath, configContent, 0644)
 		require.NoError(t, err)
 
-		err = InitCLIConfig(cfgPath)
+		err = initCLIConfig(vip, cfgPath)
 		require.NoError(t, err)
 
-		val := viper.GetString("version")
+		val := vip.GetString("version")
 		assert.Equal(t, "v1", val)
 	})
 }

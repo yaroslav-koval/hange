@@ -11,8 +11,20 @@ import (
 
 const configTypeYaml = "yaml"
 
+type configurator struct {
+	viper *viper.Viper
+}
+
+var globalConfigurator = &configurator{}
+
 func InitCLIConfig(cfgFile string) error {
-	if err := setConfigFileOrDefault(cfgFile); err != nil {
+	globalConfigurator.viper = viper.New()
+
+	return initCLIConfig(globalConfigurator.viper, cfgFile)
+}
+
+func initCLIConfig(viper *viper.Viper, cfgFile string) error {
+	if err := setConfigFileOrDefault(viper, cfgFile); err != nil {
 		return err
 	}
 
@@ -28,7 +40,7 @@ func InitCLIConfig(cfgFile string) error {
 	return nil
 }
 
-func setConfigFileOrDefault(cfgFile string) error {
+func setConfigFileOrDefault(viper *viper.Viper, cfgFile string) error {
 	if cfgFile == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
