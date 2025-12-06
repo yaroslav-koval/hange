@@ -16,5 +16,6 @@ func WriteField(field string, value any) error {
 }
 
 func ReadField(field string) any {
+	// if Viper's AutomaticEnv is enabled, it tries to read value not only from config, but also from environment variables
 	return viper.Get(field)
 }
