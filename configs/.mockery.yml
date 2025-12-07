@@ -1,0 +1,18 @@
+all: false
+dir: 'mocks'
+filename: "{{.InterfaceName | lower}}/mock_{{.InterfaceName | lower}}.go"
+force-file-write: true
+formatter: goimports
+generate: true
+include-auto-generated: false
+log-level: info
+structname: '{{.Mock}}{{.InterfaceName}}'
+pkgname: '{{.InterfaceName | lower}}_mock'
+recursive: true
+require-template-schema-exists: true
+template: testify
+template-schema: '{{.Template}}.schema.json'
+packages:
+  github.com/yaroslav-koval/hange:
+    config:
+      all: true
