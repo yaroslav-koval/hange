@@ -17,8 +17,6 @@ type App struct {
 }
 
 func BuildApp(factory AppFactory) (App, error) {
-	// TODO lazy loading
-
 	configurator, err := factory.CreateConfigurator()
 	if err != nil {
 		return App{}, err
