@@ -14,8 +14,8 @@ func TestWriteField(t *testing.T) {
 	t.Parallel()
 
 	t.Run("config not provided error", func(t *testing.T) {
-		conf := &configurator{viper: viper.New()}
-		err := conf.writeField("field", "value")
+		conf := &viperConfigurator{viper: viper.New()}
+		err := conf.WriteField("field", "value")
 		assert.ErrorAs(t, err, &viper.ConfigFileNotFoundError{})
 	})
 
@@ -27,10 +27,10 @@ func TestWriteField(t *testing.T) {
 
 		require.NoError(t, os.WriteFile(cfgPath, []byte(configContent), 0600))
 
-		conf := &configurator{viper: viper.New()}
+		conf := &viperConfigurator{viper: viper.New()}
 		require.NoError(t, setUpViperConfig(conf.viper, cfgPath))
 
-		require.NoError(t, conf.writeField("token", "secret-value"))
+		require.NoError(t, conf.WriteField("token", "secret-value"))
 
 		actualFile, err := os.ReadFile(cfgPath)
 		require.NoError(t, err)
@@ -49,10 +49,10 @@ func TestReadField(t *testing.T) {
 
 	require.NoError(t, os.WriteFile(cfgPath, []byte(configContent), 0600))
 
-	conf := &configurator{viper: viper.New()}
+	conf := &viperConfigurator{viper: viper.New()}
 	require.NoError(t, setUpViperConfig(conf.viper, cfgPath))
 
-	actualValue := conf.readField("version")
+	actualValue := conf.ReadField("version")
 	assert.Equal(t, "v1", actualValue)
 }
 

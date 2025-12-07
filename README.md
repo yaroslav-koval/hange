@@ -44,3 +44,7 @@ near the main folder, so the structure looks like:
   implementation for a driver interface(s).
 * `auth/adapter1` - implements one of driven interfaces
 * `auth/adapter2` - implements another driven interface
+
+## Tests
+
+Tests are powered by [Testify](https://github.com/stretchr/testify) and [Mockery](https://github.com/vektra/mockery)

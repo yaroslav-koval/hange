@@ -7,16 +7,20 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/config"
 )
 
-func NewConfigTokenFetcher() auth.TokenFetcher {
-	return &configTokenFetcher{}
+func NewConfigTokenFetcher(config config.Configurator) auth.TokenFetcher {
+	return &configTokenFetcher{
+		config: config,
+	}
 }
 
-type configTokenFetcher struct{}
+type configTokenFetcher struct {
+	config config.Configurator
+}
 
 var errInvalidFormat = errors.New("invalid format of token, must be string")
 
-func (c configTokenFetcher) Fetch() (string, error) {
-	v, ok := config.ReadField(config.AuthTokenPath).(string)
+func (c *configTokenFetcher) Fetch() (string, error) {
+	v, ok := c.config.ReadField(config.AuthTokenPath).(string)
 	if !ok {
 		return "", errInvalidFormat
 	}

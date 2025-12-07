@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/yaroslav-koval/hange/pkg/config"
 	"github.com/yaroslav-koval/hange/pkg/envs"
 	"github.com/yaroslav-koval/hange/pkg/factory"
 )
@@ -32,10 +31,9 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(func() {
-		err := config.InitCLIConfig(cfgFile)
+		var err error
+		app, err = factory.NewCLIApp(cfgFile)
 		cobra.CheckErr(err)
-	}, func() {
-		app = factory.NewCLIApp()
 	})
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.hange.yaml)")

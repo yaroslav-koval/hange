@@ -11,16 +11,25 @@ import (
 
 const configTypeYaml = "yaml"
 
-type configurator struct {
-	viper *viper.Viper
+type Configurator interface {
+	WriteField(field string, value any) error
+	ReadField(field string) any
 }
 
-var globalConfigurator = &configurator{}
+func NewCLIConfig(cfgFile string) (Configurator, error) {
+	conf := &viperConfigurator{
+		viper: viper.New(),
+	}
 
-func InitCLIConfig(cfgFile string) error {
-	globalConfigurator.viper = viper.New()
+	if err := initCLIConfig(conf.viper, cfgFile); err != nil {
+		return nil, err
+	}
 
-	return initCLIConfig(globalConfigurator.viper, cfgFile)
+	return conf, nil
+}
+
+type viperConfigurator struct {
+	viper *viper.Viper
 }
 
 func initCLIConfig(viper *viper.Viper, cfgFile string) error {
