@@ -1,4 +1,4 @@
-package config
+package configcli
 
 func (c *viperConfigurator) WriteField(field string, value any) error {
 	c.viper.Set(field, value)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/yaroslav-koval/hange/pkg/auth"
 	"github.com/yaroslav-koval/hange/pkg/config"
+	"github.com/yaroslav-koval/hange/pkg/config/consts"
 )
 
 func NewConfigTokenFetcher(config config.Configurator) auth.TokenFetcher {
@@ -20,7 +21,7 @@ type configTokenFetcher struct {
 var errInvalidFormat = errors.New("invalid format of token, must be string")
 
 func (c *configTokenFetcher) Fetch() (string, error) {
-	v, ok := c.config.ReadField(config.AuthTokenPath).(string)
+	v, ok := c.config.ReadField(consts.AuthTokenPath).(string)
 	if !ok {
 		return "", errInvalidFormat
 	}

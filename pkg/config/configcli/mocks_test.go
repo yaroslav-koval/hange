@@ -2,7 +2,7 @@
 // github.com/vektra/mockery
 // template: testify
 
-package config
+package configcli
 
 import (
 	mock "github.com/stretchr/testify/mock"

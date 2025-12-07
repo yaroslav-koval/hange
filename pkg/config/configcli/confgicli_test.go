@@ -1,4 +1,4 @@
-package config
+package configcli
 
 import (
 	"os"
@@ -11,18 +11,20 @@ import (
 )
 
 func TestInitCLIConfig(t *testing.T) {
+	t.Parallel()
+
 	fileName := "." + consts.AppName
 	th := &tempHome{}
 
-	vip := viper.New()
-
 	t.Run("test create if not exists", func(t *testing.T) {
+		t.Parallel()
+
 		tempHomeDir := th.createTempHome(t)
 		defer th.restoreHome(t)
 
 		// config doesn't exist at this moment, InitCLIConfig should initialize a new config
 
-		err := initCLIConfig(vip, "")
+		err := initCLIConfig(viper.New(), "")
 		require.NoError(t, err)
 
 		dir, err := os.ReadDir(tempHomeDir)
@@ -40,6 +42,8 @@ func TestInitCLIConfig(t *testing.T) {
 	})
 
 	t.Run("test keep values if exists", func(t *testing.T) {
+		t.Parallel()
+
 		tempHomeDir := th.createTempHome(t)
 		defer th.restoreHome(t)
 
@@ -50,7 +54,7 @@ func TestInitCLIConfig(t *testing.T) {
 		err := os.WriteFile(cfgPath, configContent, 0644)
 		require.NoError(t, err)
 
-		err = initCLIConfig(vip, "")
+		err = initCLIConfig(viper.New(), "")
 		require.NoError(t, err)
 
 		actualFileContent, err := os.ReadFile(cfgPath)
@@ -61,6 +65,8 @@ func TestInitCLIConfig(t *testing.T) {
 	})
 
 	t.Run("test custom config exists", func(t *testing.T) {
+		t.Parallel()
+
 		tempDir := t.TempDir()
 		cfgPath := tempDir + "/" + fileName
 
@@ -69,7 +75,7 @@ func TestInitCLIConfig(t *testing.T) {
 		err := os.WriteFile(cfgPath, configContent, 0644)
 		require.NoError(t, err)
 
-		err = initCLIConfig(vip, cfgPath)
+		err = initCLIConfig(viper.New(), cfgPath)
 		require.NoError(t, err)
 
 		actualFileContent, err := os.ReadFile(cfgPath)
@@ -80,14 +86,18 @@ func TestInitCLIConfig(t *testing.T) {
 	})
 
 	t.Run("test custom config not exists", func(t *testing.T) {
+		t.Parallel()
+
 		tempDir := t.TempDir()
 		cfgPath := tempDir + "/" + fileName
 
-		err := initCLIConfig(vip, cfgPath)
+		err := initCLIConfig(viper.New(), cfgPath)
 		require.ErrorIsf(t, err, os.ErrNotExist, "config shouldn't be created by custom path if it doesn't exist")
 	})
 
 	t.Run("read value from config", func(t *testing.T) {
+		t.Parallel()
+
 		tempDir := t.TempDir()
 		cfgPath := tempDir + "/" + fileName
 
@@ -95,6 +105,8 @@ func TestInitCLIConfig(t *testing.T) {
 
 		err := os.WriteFile(cfgPath, configContent, 0644)
 		require.NoError(t, err)
+
+		vip := viper.New()
 
 		err = initCLIConfig(vip, cfgPath)
 		require.NoError(t, err)
@@ -112,6 +124,8 @@ type tempHome struct {
 const homeEnvKey = "HOME"
 
 func (th *tempHome) createTempHome(t *testing.T) string {
+	t.Helper()
+
 	th.originalHome = os.Getenv(homeEnvKey)
 
 	tempHomeDir := t.TempDir()
@@ -122,6 +136,8 @@ func (th *tempHome) createTempHome(t *testing.T) string {
 }
 
 func (th *tempHome) restoreHome(t *testing.T) {
+	t.Helper()
+
 	err := os.Setenv(homeEnvKey, th.originalHome)
 	require.NoError(t, err)
 }

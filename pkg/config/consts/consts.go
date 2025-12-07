@@ -1,4 +1,4 @@
-package config
+package consts
 
 const (
 	AuthTokenPath = "auth.token"

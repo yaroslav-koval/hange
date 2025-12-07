@@ -5,6 +5,7 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/auth/tokenfetch"
 	"github.com/yaroslav-koval/hange/pkg/auth/tokenstore"
 	"github.com/yaroslav-koval/hange/pkg/config"
+	"github.com/yaroslav-koval/hange/pkg/config/configcli"
 )
 
 type App struct {
@@ -15,7 +16,7 @@ type App struct {
 func NewCLIApp(configPath string) (App, error) {
 	// TODO lazy loading. Initialize a component only when it's needed
 
-	cliConfig, err := config.NewCLIConfig(configPath)
+	cliConfig, err := configcli.NewCLIConfig(configPath)
 	if err != nil {
 		return App{}, err
 	}

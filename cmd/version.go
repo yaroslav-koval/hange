@@ -1,12 +1,11 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"log/slog"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/yaroslav-koval/hange/pkg/config"
 )
 
 // versionCmd represents the version command
@@ -14,16 +13,18 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show the Hange version",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		r := viper.New()
-		r.SetConfigType("yaml")
-
-		buildCfg := getBuildConfig()
-
-		if err := r.ReadConfig(bytes.NewBuffer(buildCfg)); err != nil {
+		val, err := config.ReadFieldFromBytes(getBuildConfig(), config.FileTypeYaml, "version")
+		if err != nil {
 			slog.Info(fmt.Sprintf("Failed to read version: %s\n", err))
+			return err
 		}
 
-		slog.Info(fmt.Sprintf("hange version %s", r.GetString("version")))
+		if val == nil {
+			slog.Info(fmt.Sprintf("Failed to read version: version value is nil"))
+			return err
+		}
+
+		slog.Info(fmt.Sprintf("hange version %v", val))
 
 		return nil
 	},

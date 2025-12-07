@@ -1,4 +1,4 @@
-package config
+package configcli
 
 import (
 	"fmt"
@@ -6,17 +6,11 @@ import (
 	"os"
 
 	"github.com/spf13/viper"
+	"github.com/yaroslav-koval/hange/pkg/config"
 	"github.com/yaroslav-koval/hange/pkg/consts"
 )
 
-const configTypeYaml = "yaml"
-
-type Configurator interface {
-	WriteField(field string, value any) error
-	ReadField(field string) any
-}
-
-func NewCLIConfig(cfgFile string) (Configurator, error) {
+func NewCLIConfig(cfgFile string) (config.Configurator, error) {
 	conf := &viperConfigurator{
 		viper: viper.New(),
 	}
@@ -64,7 +58,7 @@ func setConfigFileOrDefault(viper *viper.Viper, cfgFile string) error {
 		}
 	}
 
-	viper.SetConfigType(configTypeYaml)
+	viper.SetConfigType(string(config.FileTypeYaml))
 	viper.SetConfigFile(cfgFile)
 
 	return nil

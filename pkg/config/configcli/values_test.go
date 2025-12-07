@@ -1,4 +1,4 @@
-package config
+package configcli
 
 import (
 	"os"
@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/yaroslav-koval/hange/pkg/config"
 	"github.com/yaroslav-koval/hange/pkg/consts"
 )
 
@@ -14,12 +15,16 @@ func TestWriteField(t *testing.T) {
 	t.Parallel()
 
 	t.Run("config not provided error", func(t *testing.T) {
+		t.Parallel()
+
 		conf := &viperConfigurator{viper: viper.New()}
 		err := conf.WriteField("field", "value")
 		assert.ErrorAs(t, err, &viper.ConfigFileNotFoundError{})
 	})
 
 	t.Run("success", func(t *testing.T) {
+		t.Parallel()
+
 		tempDir := t.TempDir()
 		cfgPath := tempDir + "/." + consts.AppName
 
@@ -58,6 +63,6 @@ func TestReadField(t *testing.T) {
 
 func setUpViperConfig(viper *viper.Viper, cfgPath string) error {
 	viper.SetConfigFile(cfgPath)
-	viper.SetConfigType(configTypeYaml)
+	viper.SetConfigType(string(config.FileTypeYaml))
 	return viper.ReadInConfig()
 }
