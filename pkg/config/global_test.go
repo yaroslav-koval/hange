@@ -18,3 +18,13 @@ app:
 	require.NoError(t, err)
 	assert.EqualValues(t, "v1", v)
 }
+
+func TestErrorPropagation(t *testing.T) {
+	t.Parallel()
+
+	file := []byte(`app:
+  error_field: version: v1`)
+
+	_, err := ReadFieldFromBytes(file, FileTypeYaml, "app.version")
+	require.Error(t, err)
+}

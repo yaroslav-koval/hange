@@ -10,7 +10,6 @@ import (
 )
 
 var cfgFile = os.Getenv(envs.EnvHangeConfigPath)
-var app factory.App
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -18,6 +17,17 @@ var rootCmd = &cobra.Command{
 	Short: "A reliable CLI soldier to perform routine tasks",
 	Long: `A reliable CLI soldier to perform developer's routine tasks. 
 It likes to explain code, write documentation and just chat.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		app, err := factory.NewCLIApp(cfgFile)
+		if err != nil {
+			return err
+		}
+
+		ctx := appToCtx(cmd, &app)
+		cmd.SetContext(ctx)
+
+		return nil
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -30,11 +40,5 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(func() {
-		var err error
-		app, err = factory.NewCLIApp(cfgFile)
-		cobra.CheckErr(err)
-	})
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.hange.yaml)")
 }
