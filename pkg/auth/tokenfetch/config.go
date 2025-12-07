@@ -18,13 +18,19 @@ type configTokenFetcher struct {
 	config config.Configurator
 }
 
+var ErrTokenNotSet = errors.New("auth token is not set")
 var errInvalidFormat = errors.New("invalid format of token, must be string")
 
 func (c *configTokenFetcher) Fetch() (string, error) {
-	v, ok := c.config.ReadField(consts.AuthTokenPath).(string)
+	v := c.config.ReadField(consts.AuthTokenPath)
+	if v == nil {
+		return "", ErrTokenNotSet
+	}
+
+	vStr, ok := v.(string)
 	if !ok {
 		return "", errInvalidFormat
 	}
 
-	return v, nil
+	return vStr, nil
 }
