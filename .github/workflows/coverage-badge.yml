@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  coverage-badge:
+  badges:
     runs-on: ubuntu-latest
     environment: badges
     steps:
@@ -31,7 +31,7 @@ jobs:
           echo "COVERAGE=${COVERAGE}" >> "${GITHUB_ENV}"
           rm -f coverage.out
 
-      - name: Build badge JSON
+      - name: Build coverage badge JSON
         run: |
           pct=${COVERAGE%%.*}
           color=red
@@ -48,43 +48,7 @@ jobs:
             --arg coverage "${COVERAGE}" \
             --arg color "${color}" \
             '{schemaVersion:1,label:"coverage",message:($coverage + "%"),color:$color,cacheSeconds:300}' > "${tmpfile}"
-          echo "BADGE_JSON=${tmpfile}" >> "${GITHUB_ENV}"
-
-      - name: Publish badge to main branch
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin main
-          git switch main
-
-          mkdir -p configs/badges
-
-          cp "${BADGE_JSON}" configs/badges/test-coverage.json
-          git add configs/badges/test-coverage.json
-
-          if git diff --cached --quiet; then
-            echo "No badge changes to commit."
-            exit 0
-          fi
-
-          git commit -m "Update coverage badge [skip ci]"
-          git push origin main
-
-  binary-size-badge:
-    runs-on: ubuntu-latest
-    environment: badges
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
+          echo "BADGE_JSON_COVERAGE=${tmpfile}" >> "${GITHUB_ENV}"
 
       - name: Build binaries and calculate sizes
         run: |
@@ -99,7 +63,7 @@ jobs:
           echo "BINARY_SIZE_AMD64=${size_amd64}" >> "${GITHUB_ENV}"
           echo "BINARY_SIZE_ARM64=${size_arm64}" >> "${GITHUB_ENV}"
 
-      - name: Build badge JSON
+      - name: Build binary size badge JSON
         run: |
           format_size_mb() {
             awk -v bytes="$1" 'BEGIN { printf "%.2f MB", bytes/1024/1024 }'
@@ -122,7 +86,7 @@ jobs:
           echo "BADGE_JSON_AMD64=${tmp_amd64}" >> "${GITHUB_ENV}"
           echo "BADGE_JSON_ARM64=${tmp_arm64}" >> "${GITHUB_ENV}"
 
-      - name: Publish badge to main branch
+      - name: Publish badges to main branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -132,14 +96,15 @@ jobs:
 
           mkdir -p configs/badges
 
+          cp "${BADGE_JSON_COVERAGE}" configs/badges/test-coverage.json
           cp "${BADGE_JSON_AMD64}" configs/badges/binary-size-amd64.json
           cp "${BADGE_JSON_ARM64}" configs/badges/binary-size-arm64.json
-          git add configs/badges/binary-size-amd64.json configs/badges/binary-size-arm64.json
+          git add configs/badges/test-coverage.json configs/badges/binary-size-amd64.json configs/badges/binary-size-arm64.json
 
           if git diff --cached --quiet; then
             echo "No badge changes to commit."
             exit 0
           fi
 
-          git commit -m "Update binary size badges [skip ci]"
+          git commit -m "Update badges [skip ci]"
           git push origin main
