@@ -1,4 +1,5 @@
 # Hange
+/ˈhɑːn.dʒi/ (han-jee)
 
 <img width="250" height="250" alt="image" src="https://github.com/user-attachments/assets/7d15a702-11bb-4a3e-bcc9-5eae084f5d3e" />
 
