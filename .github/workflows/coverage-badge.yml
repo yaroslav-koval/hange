@@ -1,0 +1,68 @@
+name: Update Coverage Badge
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  coverage-badge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Compute coverage percent
+        run: |
+          COVERAGE=$(make coverage-percent)
+          echo "COVERAGE=${COVERAGE}" >> "${GITHUB_ENV}"
+          rm -f coverage.out
+
+      - name: Build badge JSON
+        run: |
+          pct=${COVERAGE%%.*}
+          color=red
+          if [ "${pct}" -ge 80 ]; then
+            color=brightgreen
+          elif [ "${pct}" -ge 70 ]; then
+            color=yellow
+          elif [ "${pct}" -ge 40 ]; then
+            color=orange
+          fi
+
+          tmpfile=$(mktemp)
+          jq -n \
+            --arg coverage "${COVERAGE}" \
+            --arg color "${color}" \
+            '{schemaVersion:1,label:"coverage",message:($coverage + "%"),color:$color,cacheSeconds:300}' > "${tmpfile}"
+          echo "BADGE_JSON=${tmpfile}" >> "${GITHUB_ENV}"
+
+      - name: Publish badge to badges branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin badges:badges
+          git switch badges
+
+          echo "${BADGE_JSON}" > badge.coverage.json
+          git add badge.coverage.json
+
+          if git diff --cached --quiet; then
+            echo "No badge changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update coverage badge"
+          git push origin badges
