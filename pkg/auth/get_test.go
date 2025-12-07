@@ -5,14 +5,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	tokenfetcher_mock "github.com/yaroslav-koval/hange/mocks/tokenfetcher"
+	tokenstorer_mock "github.com/yaroslav-koval/hange/mocks/tokenstorer"
 )
 
 func TestGet(t *testing.T) {
 	t.Parallel()
 
-	mockFetcher := NewMockTokenFetcher(t)
+	mockFetcher := tokenfetcher_mock.NewMockTokenFetcher(t)
 
-	auth := NewAuth(NewMockTokenStorer(t), mockFetcher)
+	auth := NewAuth(tokenstorer_mock.NewMockTokenStorer(t), mockFetcher)
 
 	mockFetcher.EXPECT().Fetch().Return("secret-value", nil)
 
