@@ -50,24 +50,26 @@ jobs:
             '{schemaVersion:1,label:"coverage",message:($coverage + "%"),color:$color,cacheSeconds:300}' > "${tmpfile}"
           echo "BADGE_JSON=${tmpfile}" >> "${GITHUB_ENV}"
 
-      - name: Publish badge to badges branch
+      - name: Publish badge to main branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin badges:badges
-          git switch badges
+          git fetch origin main
+          git switch main
 
-          cp "${BADGE_JSON}" badge.coverage.json
-          git add badge.coverage.json
+          mkdir -p configs/badges
+
+          cp "${BADGE_JSON}" configs/badges/test-coverage.json
+          git add configs/badges/test-coverage.json
 
           if git diff --cached --quiet; then
             echo "No badge changes to commit."
             exit 0
           fi
 
-          git commit -m "Update coverage badge"
-          git push origin badges
+          git commit -m "Update coverage badge [skip ci]"
+          git push origin main
 
   binary-size-badge:
     runs-on: ubuntu-latest
@@ -120,22 +122,24 @@ jobs:
           echo "BADGE_JSON_AMD64=${tmp_amd64}" >> "${GITHUB_ENV}"
           echo "BADGE_JSON_ARM64=${tmp_arm64}" >> "${GITHUB_ENV}"
 
-      - name: Publish badge to badges branch
+      - name: Publish badge to main branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin badges:badges
-          git switch badges
+          git fetch origin main
+          git switch main
 
-          cp "${BADGE_JSON_AMD64}" badge.binary-size-amd64.json
-          cp "${BADGE_JSON_ARM64}" badge.binary-size-arm64.json
-          git add badge.binary-size-amd64.json badge.binary-size-arm64.json
+          mkdir -p configs/badges
+
+          cp "${BADGE_JSON_AMD64}" configs/badges/binary-size-amd64.json
+          cp "${BADGE_JSON_ARM64}" configs/badges/binary-size-arm64.json
+          git add configs/badges/binary-size-amd64.json configs/badges/binary-size-arm64.json
 
           if git diff --cached --quiet; then
             echo "No badge changes to commit."
             exit 0
           fi
 
-          git commit -m "Update binary size badges"
-          git push origin badges
+          git commit -m "Update binary size badges [skip ci]"
+          git push origin main

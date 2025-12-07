@@ -1,11 +1,12 @@
 # Hange
+
 /ˈhɑːn.dʒi/ (han-jee)
 
 <img width="250" height="250" alt="image" src="https://github.com/user-attachments/assets/7d15a702-11bb-4a3e-bcc9-5eae084f5d3e" />
 
-![coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yaroslav-koval/hange/badges/badge.coverage.json)
-![ARM size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yaroslav-koval/hange/badges/badge.binary-size-arm64.json)
-![AMD size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yaroslav-koval/hange/badges/badge.binary-size-amd64.json)
+![coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yaroslav-koval/hange/main/configs/badges/test-coverage.json)
+![ARM size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yaroslav-koval/hange/main/configs/badges/binary-size-arm64.json)
+![AMD size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yaroslav-koval/hange/main/configs/badges/binary-size-amd64.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A small CLI soldier that goes hand in hand with a developer. An agentic answer for a routine tasks.
