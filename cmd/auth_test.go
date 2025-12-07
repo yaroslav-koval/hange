@@ -50,6 +50,29 @@ func TestAuthCommandPropagatesSaveError(t *testing.T) {
 	require.ErrorIs(t, err, saveErr)
 }
 
+func TestReadTokenFromStdinErrors(t *testing.T) {
+	t.Run("when read fails", func(t *testing.T) {
+		// Use a closed file to trigger read error
+		tmp := t.TempDir()
+		f, err := os.CreateTemp(tmp, "stdin")
+		require.NoError(t, err)
+		name := f.Name()
+		require.NoError(t, f.Close())
+
+		r, err := os.Open(name)
+		require.NoError(t, err)
+		require.NoError(t, r.Close()) // close so next read fails
+
+		orig := os.Stdin
+		os.Stdin = r
+		t.Cleanup(func() { os.Stdin = orig })
+
+		token, err := readTokenFromStdin()
+		require.ErrorContains(t, err, "failed to read token from stdin")
+		require.Empty(t, token)
+	})
+}
+
 func runAuthCommand(t *testing.T, authService auth.Auth, args []string) error {
 	t.Helper()
 

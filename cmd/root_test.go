@@ -54,6 +54,26 @@ func TestPersistentPreRunEReturnsErrorWhenConfigMissing(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestExecuteSucceeds(t *testing.T) {
+	cfg := writeTempConfig(t)
+
+	originalCfgFile := cfgFile
+	t.Cleanup(func() {
+		cfgFile = originalCfgFile
+		buildConfig = nil
+		rootCmd.SetArgs(nil)
+		rootCmd.SetContext(context.Background())
+	})
+	cfgFile = cfg
+
+	SetBuildConfig([]byte("version: 1.2.3"))
+
+	rootCmd.SetArgs([]string{"--config", cfg, "version"})
+	rootCmd.SetContext(context.Background())
+
+	Execute() // should not call os.Exit on success
+}
+
 func writeTempConfig(t *testing.T) string {
 	t.Helper()
 
