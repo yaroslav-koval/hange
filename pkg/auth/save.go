@@ -13,7 +13,12 @@ func (s *service) SaveToken(authToken string) error {
 		return ErrEmptyToken
 	}
 
-	if err := s.tokenStorer.Store(authToken); err != nil {
+	encrypted, err := s.encryptor.Encrypt([]byte(authToken))
+	if err != nil {
+		return err
+	}
+
+	if err = s.tokenStorer.Store(string(encrypted)); err != nil {
 		slog.Info("Failed to store token")
 
 		return err

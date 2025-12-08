@@ -6,6 +6,8 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/auth/tokenstore"
 	"github.com/yaroslav-koval/hange/pkg/config"
 	"github.com/yaroslav-koval/hange/pkg/config/configcli"
+	"github.com/yaroslav-koval/hange/pkg/crypt"
+	"github.com/yaroslav-koval/hange/pkg/crypt/base64"
 	"github.com/yaroslav-koval/hange/pkg/factory"
 )
 
@@ -29,4 +31,12 @@ func (c *cliFactory) CreateTokenFetcher(configurator config.Configurator) (auth.
 
 func (c *cliFactory) CreateTokenStorer(configurator config.Configurator) (auth.TokenStorer, error) {
 	return tokenstore.NewConfigTokenStorer(configurator), nil
+}
+
+func (c *cliFactory) CreateBase64Encryptor() (crypt.Encryptor, error) {
+	return base64.NewBase64Encryptor(), nil
+}
+
+func (c *cliFactory) CreateBase64Decryptor() (crypt.Decryptor, error) {
+	return base64.NewBase64Decryptor(), nil
 }

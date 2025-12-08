@@ -8,6 +8,7 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	"github.com/yaroslav-koval/hange/pkg/auth"
 	"github.com/yaroslav-koval/hange/pkg/config"
+	"github.com/yaroslav-koval/hange/pkg/crypt"
 )
 
 // NewMockAppFactory creates a new instance of MockAppFactory. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -35,6 +36,116 @@ type MockAppFactory_Expecter struct {
 
 func (_m *MockAppFactory) EXPECT() *MockAppFactory_Expecter {
 	return &MockAppFactory_Expecter{mock: &_m.Mock}
+}
+
+// CreateBase64Decryptor provides a mock function for the type MockAppFactory
+func (_mock *MockAppFactory) CreateBase64Decryptor() (crypt.Decryptor, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateBase64Decryptor")
+	}
+
+	var r0 crypt.Decryptor
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (crypt.Decryptor, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() crypt.Decryptor); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(crypt.Decryptor)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppFactory_CreateBase64Decryptor_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateBase64Decryptor'
+type MockAppFactory_CreateBase64Decryptor_Call struct {
+	*mock.Call
+}
+
+// CreateBase64Decryptor is a helper method to define mock.On call
+func (_e *MockAppFactory_Expecter) CreateBase64Decryptor() *MockAppFactory_CreateBase64Decryptor_Call {
+	return &MockAppFactory_CreateBase64Decryptor_Call{Call: _e.mock.On("CreateBase64Decryptor")}
+}
+
+func (_c *MockAppFactory_CreateBase64Decryptor_Call) Run(run func()) *MockAppFactory_CreateBase64Decryptor_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppFactory_CreateBase64Decryptor_Call) Return(decryptor crypt.Decryptor, err error) *MockAppFactory_CreateBase64Decryptor_Call {
+	_c.Call.Return(decryptor, err)
+	return _c
+}
+
+func (_c *MockAppFactory_CreateBase64Decryptor_Call) RunAndReturn(run func() (crypt.Decryptor, error)) *MockAppFactory_CreateBase64Decryptor_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateBase64Encryptor provides a mock function for the type MockAppFactory
+func (_mock *MockAppFactory) CreateBase64Encryptor() (crypt.Encryptor, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateBase64Encryptor")
+	}
+
+	var r0 crypt.Encryptor
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (crypt.Encryptor, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() crypt.Encryptor); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(crypt.Encryptor)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppFactory_CreateBase64Encryptor_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateBase64Encryptor'
+type MockAppFactory_CreateBase64Encryptor_Call struct {
+	*mock.Call
+}
+
+// CreateBase64Encryptor is a helper method to define mock.On call
+func (_e *MockAppFactory_Expecter) CreateBase64Encryptor() *MockAppFactory_CreateBase64Encryptor_Call {
+	return &MockAppFactory_CreateBase64Encryptor_Call{Call: _e.mock.On("CreateBase64Encryptor")}
+}
+
+func (_c *MockAppFactory_CreateBase64Encryptor_Call) Run(run func()) *MockAppFactory_CreateBase64Encryptor_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppFactory_CreateBase64Encryptor_Call) Return(encryptor crypt.Encryptor, err error) *MockAppFactory_CreateBase64Encryptor_Call {
+	_c.Call.Return(encryptor, err)
+	return _c
+}
+
+func (_c *MockAppFactory_CreateBase64Encryptor_Call) RunAndReturn(run func() (crypt.Encryptor, error)) *MockAppFactory_CreateBase64Encryptor_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // CreateConfigurator provides a mock function for the type MockAppFactory

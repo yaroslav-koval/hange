@@ -3,12 +3,15 @@ package factory
 import (
 	"github.com/yaroslav-koval/hange/pkg/auth"
 	"github.com/yaroslav-koval/hange/pkg/config"
+	"github.com/yaroslav-koval/hange/pkg/crypt"
 )
 
 type AppFactory interface {
 	CreateConfigurator() (config.Configurator, error)
 	CreateTokenFetcher(config.Configurator) (auth.TokenFetcher, error)
 	CreateTokenStorer(config.Configurator) (auth.TokenStorer, error)
+	CreateBase64Encryptor() (crypt.Encryptor, error)
+	CreateBase64Decryptor() (crypt.Decryptor, error)
 }
 
 type App struct {
@@ -32,8 +35,23 @@ func BuildApp(factory AppFactory) (App, error) {
 		return App{}, err
 	}
 
+	encryptor, err := factory.CreateBase64Encryptor()
+	if err != nil {
+		return App{}, err
+	}
+
+	decryptor, err := factory.CreateBase64Decryptor()
+	if err != nil {
+		return App{}, err
+	}
+
 	return App{
-		Auth:   auth.NewAuth(tokenStorer, tokenFetcher),
+		Auth: auth.NewAuth(
+			tokenStorer,
+			tokenFetcher,
+			encryptor,
+			decryptor,
+		),
 		Config: configurator,
 	}, nil
 }
