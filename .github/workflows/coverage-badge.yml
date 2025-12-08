@@ -35,9 +35,9 @@ jobs:
         run: |
           pct=${COVERAGE%%.*}
           color=red
-          if [ "${pct}" -ge 80 ]; then
+          if [ "${pct}" -ge 75 ]; then
             color=brightgreen
-          elif [ "${pct}" -ge 70 ]; then
+          elif [ "${pct}" -ge 65 ]; then
             color=yellow
           elif [ "${pct}" -ge 40 ]; then
             color=orange
