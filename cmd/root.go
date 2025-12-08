@@ -26,7 +26,7 @@ It likes to explain code, write documentation and just chat.`,
 			return err
 		}
 
-		ctx := appToCtx(cmd, &app)
+		ctx := appToCmdContext(cmd, &app)
 		cmd.SetContext(ctx)
 
 		return nil

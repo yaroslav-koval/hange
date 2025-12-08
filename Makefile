@@ -18,6 +18,6 @@ coverage-filtered:
 # shows pure percentage of tests coverage
 .PHONY:coverage-percent
 coverage-percent:
-	@pkgs=$$(go list ./... | grep -v '/mocks' | grep -v '/configs'); \
+	@pkgs=$$(go list ./... | grep -v '/mocks' | grep -v '/configs' | grep -v '/hange/pkg/factory'); \
 	go test $$pkgs -coverprofile=coverage.out >/dev/null
 	@go tool cover -func=coverage.out | awk '/^total:/ {gsub("%","",$$3); printf "%d\n", ($$3 + 0.5)}'

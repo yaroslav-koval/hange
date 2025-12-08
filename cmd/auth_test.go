@@ -78,7 +78,7 @@ func runAuthCommand(t *testing.T, authService auth.Auth, args []string) error {
 
 	cmd := &cobra.Command{RunE: authCmd.RunE}
 	cmd.SetContext(context.Background())
-	cmd.SetContext(appToCtx(cmd, &factory.App{Auth: authService}))
+	cmd.SetContext(appToCmdContext(cmd, &factory.App{Auth: authService}))
 
 	return cmd.RunE(cmd, args)
 }

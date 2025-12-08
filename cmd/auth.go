@@ -37,7 +37,7 @@ hange auth "token-value"`,
 			return errors.New("failed to parse token argument")
 		}
 
-		if err := appFromCtx(cmd).Auth.SaveToken(token); err != nil {
+		if err := appFromCmdContext(cmd).Auth.SaveToken(token); err != nil {
 			return err
 		}
 

@@ -14,7 +14,7 @@ var appContextKey appKey
 
 var errAppNotInitialized = errors.New("application not initialized")
 
-func appFromCtx(cmd *cobra.Command) *factory.App {
+func appFromCmdContext(cmd *cobra.Command) *factory.App {
 	v := cmd.Context().Value(appContextKey)
 
 	app, ok := v.(*factory.App)
@@ -26,6 +26,6 @@ func appFromCtx(cmd *cobra.Command) *factory.App {
 	return app
 }
 
-func appToCtx(cmd *cobra.Command, app *factory.App) context.Context {
+func appToCmdContext(cmd *cobra.Command, app *factory.App) context.Context {
 	return context.WithValue(cmd.Context(), appContextKey, app)
 }
