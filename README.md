@@ -11,6 +11,10 @@
 
 A small CLI soldier that goes hand in hand with a developer. An agentic answer for a routine tasks.
 
+### Buzzwords 😎
+
+Agent, RAG, Go, Cobra CLI (MCP not adopted yet 😔)
+
 ## Development
 
 Shortest way to build the command is
