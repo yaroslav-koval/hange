@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 )
 
-var ErrNotExists = os.ErrNotExist
-
 type File struct {
 	FilePath string
 	File     os.File
