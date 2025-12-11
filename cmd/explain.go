@@ -15,13 +15,6 @@ var explainCmd = &cobra.Command{
 	Long:    `Explain file(s) or directory(ies) from the engineer's perspective`,
 	Example: `hange explain file1 file2 directory`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// TODO
-
-		// option 1
-		// read provided files/dirs
-		// read current dir (if flag not provided)
-		// compress them
-
 		ok, err := cmd.LocalFlags().GetBool(flagNameOmitContext)
 		if err != nil {
 			return err

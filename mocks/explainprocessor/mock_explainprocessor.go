@@ -162,7 +162,7 @@ type MockExplainProcessor_UploadFiles_Call struct {
 
 // UploadFiles is a helper method to define mock.On call
 //   - ctx context.Context
-//   - files <-chan openaiagent.File
+//   - files <-chan agent.File
 func (_e *MockExplainProcessor_Expecter) UploadFiles(ctx interface{}, files interface{}) *MockExplainProcessor_UploadFiles_Call {
 	return &MockExplainProcessor_UploadFiles_Call{Call: _e.mock.On("UploadFiles", ctx, files)}
 }

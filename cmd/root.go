@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"context"
 	_ "embed"
+	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"github.com/yaroslav-koval/hange/pkg/envs"
@@ -10,7 +14,11 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/factory/appfactory"
 )
 
-var cfgFile = os.Getenv(envs.EnvHangeConfigPath)
+var (
+	cfgPath    = os.Getenv(envs.EnvHangeConfigPath)
+	cancel     context.CancelFunc
+	appFactory = appfactory.NewCLIFactory
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -19,17 +27,32 @@ var rootCmd = &cobra.Command{
 	Long: `A reliable CLI soldier to perform developer's routine tasks. 
 It likes to explain code, write documentation and just chat.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		f := appfactory.NewCLIFactory(cfgFile)
+		ctx, c := context.WithCancel(cmd.Context())
+		cancel = c
+		cmd.SetContext(ctx)
 
+		sigCh := makeSignalChan()
+
+		go func() {
+			slog.Debug("Listening for a termination signal")
+			<-sigCh
+			slog.Info("Terminated")
+			cancel()
+		}()
+
+		f := appFactory(cfgPath)
 		app, err := factory.BuildApp(f)
 		if err != nil {
 			return err
 		}
 
-		ctx := appToCmdContext(cmd, &app)
+		ctx = appToCmdContext(cmd, &app)
 		cmd.SetContext(ctx)
 
 		return nil
+	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		cancel()
 	},
 }
 
@@ -43,5 +66,13 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.hange.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgPath, "config", "", "config file (default is $HOME/.hange.yaml)")
+}
+
+func makeSignalChan() <-chan os.Signal {
+	sigs := make(chan os.Signal, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	return sigs
 }
