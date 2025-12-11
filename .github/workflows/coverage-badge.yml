@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-badges
+  cancel-in-progress: true
+
 jobs:
   badges:
     runs-on: ubuntu-latest
