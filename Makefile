@@ -2,6 +2,11 @@
 gen-mocks:
 	mockery --config configs/.mockery.yml
 
+.PHONY:gen-mocks
+build-and-check:
+	go install .
+	hange version
+
 .PHONY:coverage
 coverage:
 	go test ./... -coverprofile=coverage.out
