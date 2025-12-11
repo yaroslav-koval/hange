@@ -21,7 +21,8 @@
 
 ## Testing Guidelines
 - Tests use the Go test runner with `testify` assertions; place `_test.go` beside implementation files.
-- Prefer table-driven cases for command behaviors and adapters. Use mocks from `mocks/` for external interactions (set explicit `EXPECT()` calls); regenerate after interface changes.
+- Prefer table-driven cases for command behaviors and adapters. 
+- Use mocks from `mocks/` for external interactions (set explicit `EXPECT()` calls); regenerate after interface changes.
 - When a mock exists, use it instead of real implementations; assert expected calls (and non-calls) to document behavior.
 - Keep coverage meaningful: run `make coverage-filtered` before PRs and ensure `coverage.out` remains up to date if referenced.
 
