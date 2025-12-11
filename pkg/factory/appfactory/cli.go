@@ -1,4 +1,4 @@
-package factorycli
+package appfactory
 
 import (
 	"github.com/yaroslav-koval/hange/pkg/auth"

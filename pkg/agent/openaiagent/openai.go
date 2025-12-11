@@ -9,7 +9,7 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/auth"
 )
 
-func NewOpenAIUseCase(auth auth.Auth) (agent.AIUseCase, error) {
+func NewOpenAIAgent(auth auth.Auth) (agent.AIAgent, error) {
 	token, err := auth.GetToken()
 	if err != nil {
 		return nil, err

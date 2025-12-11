@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/yaroslav-koval/hange/pkg/envs"
 	"github.com/yaroslav-koval/hange/pkg/factory"
-	"github.com/yaroslav-koval/hange/pkg/factory/factorycli"
+	"github.com/yaroslav-koval/hange/pkg/factory/appfactory"
 )
 
 var cfgFile = os.Getenv(envs.EnvHangeConfigPath)
@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Long: `A reliable CLI soldier to perform developer's routine tasks. 
 It likes to explain code, write documentation and just chat.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		f := factorycli.NewCLIFactory(cfgFile)
+		f := appfactory.NewCLIFactory(cfgFile)
 
 		app, err := factory.BuildApp(f)
 		if err != nil {
