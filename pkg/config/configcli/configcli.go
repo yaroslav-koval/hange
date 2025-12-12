@@ -34,7 +34,7 @@ func initCLIConfig(viper *viper.Viper, cfgFile string) error {
 	viper.SetEnvPrefix(consts.AppName)
 	viper.AutomaticEnv()
 
-	slog.Info("Using config file: " + viper.ConfigFileUsed())
+	slog.Debug("Using config file: " + viper.ConfigFileUsed())
 
 	if err := viper.ReadInConfig(); err != nil {
 		return err

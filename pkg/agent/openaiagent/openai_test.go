@@ -8,18 +8,18 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	explainprocessor_mock "github.com/yaroslav-koval/hange/mocks/explainprocessor"
-	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
 func TestOpenAIUseCaseExplainFilesSuccess(t *testing.T) {
 	ep := explainprocessor_mock.NewMockExplainProcessor(t)
 
-	files := make(chan agent.File)
+	files := make(chan entities.File)
 	close(files)
 
-	ep.On("UploadFiles", mock.Anything, mock.Anything).Return(nil)
-	ep.On("ExecuteExplainRequest", mock.Anything).Return("ok", nil)
-	ep.On("Cleanup", mock.Anything)
+	ep.EXPECT().UploadFiles(mock.Anything, mock.Anything).Return(nil)
+	ep.EXPECT().ExecuteExplainRequest(mock.Anything).Return("ok", nil)
+	ep.EXPECT().Cleanup(mock.Anything)
 
 	uc := &openAIUseCase{ep: ep}
 
@@ -31,13 +31,13 @@ func TestOpenAIUseCaseExplainFilesSuccess(t *testing.T) {
 func TestOpenAIUseCaseExplainFilesUploadFails(t *testing.T) {
 	ep := explainprocessor_mock.NewMockExplainProcessor(t)
 
-	files := make(chan agent.File)
+	files := make(chan entities.File)
 	close(files)
 
 	uploadErr := errors.New("upload failed")
 
-	ep.On("UploadFiles", mock.Anything, mock.Anything).Return(uploadErr)
-	ep.On("Cleanup", mock.Anything)
+	ep.EXPECT().UploadFiles(mock.Anything, mock.Anything).Return(uploadErr)
+	ep.EXPECT().Cleanup(mock.Anything)
 
 	uc := &openAIUseCase{ep: ep}
 

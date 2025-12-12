@@ -17,7 +17,7 @@ import (
 	"github.com/openai/openai-go/v3/shared"
 	"github.com/openai/openai-go/v3/shared/constant"
 	"github.com/stretchr/testify/require"
-	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
 func TestExplainProcessor_uploadFiles(t *testing.T) {
@@ -51,9 +51,9 @@ func TestExplainProcessor_uploadFiles(t *testing.T) {
 		require.NoError(t, json.NewEncoder(w).Encode(resp))
 	})
 
-	filesCh := make(chan agent.File, 2)
-	filesCh <- agent.File{Name: "one.go", Data: []byte("one")}
-	filesCh <- agent.File{Name: "two.md", Data: []byte("two")}
+	filesCh := make(chan entities.File, 2)
+	filesCh <- entities.File{Path: "one.go", Data: []byte("one")}
+	filesCh <- entities.File{Path: "two.md", Data: []byte("two")}
 	close(filesCh)
 
 	ep := newTestExplainProcessor(client)
@@ -83,7 +83,7 @@ func TestExplainProcessor_uploadFiles_contextCancelled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	filesCh := make(chan agent.File)
+	filesCh := make(chan entities.File)
 	close(filesCh)
 
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {

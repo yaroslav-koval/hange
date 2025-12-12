@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/pkg/entities"
 	"github.com/yaroslav-koval/hange/pkg/graceful"
 )
 
@@ -26,7 +26,7 @@ func TestReadFilesSuccess(t *testing.T) {
 	filesCh, doneCh, err := dr.ReadFiles(graceful.Shutdown(t.Context()), []string{td})
 	require.NoError(t, err)
 
-	var files []fileprovider.File
+	var files []entities.File
 
 	for f := range filesCh {
 		files = append(files, f)
@@ -76,7 +76,7 @@ func TestReadFilesCancelledContext(t *testing.T) {
 	writeFiles(t, []string{p})
 
 	ctx, cancel := context.WithCancel(graceful.Shutdown(t.Context()))
-	filesCh := make(chan fileprovider.File)
+	filesCh := make(chan entities.File)
 
 	dr := &directoryReader{}
 	doneCh := dr.readAndSendFile(ctx, []string{p}, 1, filesCh)

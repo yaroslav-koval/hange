@@ -9,6 +9,7 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/auth"
 	"github.com/yaroslav-koval/hange/pkg/config"
 	"github.com/yaroslav-koval/hange/pkg/crypt"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 )
 
 // NewMockAppFactory creates a new instance of MockAppFactory. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -199,6 +200,61 @@ func (_c *MockAppFactory_CreateConfigurator_Call) Return(configurator config.Con
 }
 
 func (_c *MockAppFactory_CreateConfigurator_Call) RunAndReturn(run func() (config.Configurator, error)) *MockAppFactory_CreateConfigurator_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateFileProvider provides a mock function for the type MockAppFactory
+func (_mock *MockAppFactory) CreateFileProvider() (fileprovider.FileProvider, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateFileProvider")
+	}
+
+	var r0 fileprovider.FileProvider
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (fileprovider.FileProvider, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() fileprovider.FileProvider); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(fileprovider.FileProvider)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppFactory_CreateFileProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateFileProvider'
+type MockAppFactory_CreateFileProvider_Call struct {
+	*mock.Call
+}
+
+// CreateFileProvider is a helper method to define mock.On call
+func (_e *MockAppFactory_Expecter) CreateFileProvider() *MockAppFactory_CreateFileProvider_Call {
+	return &MockAppFactory_CreateFileProvider_Call{Call: _e.mock.On("CreateFileProvider")}
+}
+
+func (_c *MockAppFactory_CreateFileProvider_Call) Run(run func()) *MockAppFactory_CreateFileProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppFactory_CreateFileProvider_Call) Return(fileProvider fileprovider.FileProvider, err error) *MockAppFactory_CreateFileProvider_Call {
+	_c.Call.Return(fileProvider, err)
+	return _c
+}
+
+func (_c *MockAppFactory_CreateFileProvider_Call) RunAndReturn(run func() (fileprovider.FileProvider, error)) *MockAppFactory_CreateFileProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }

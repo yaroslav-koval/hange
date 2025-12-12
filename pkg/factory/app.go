@@ -9,6 +9,10 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 )
 
+type AppBuilder interface {
+	BuildApp(appFactory AppFactory) (*App, error)
+}
+
 type AppFactory interface {
 	CreateConfigurator() (config.Configurator, error)
 	CreateTokenFetcher(config.Configurator) (auth.TokenFetcher, error)
@@ -25,7 +29,13 @@ type App struct {
 	FileProvider fileprovider.FileProvider
 }
 
-func BuildApp(appFactory AppFactory) (*App, error) {
+func NewAppBuilder() AppBuilder {
+	return &appBuilder{}
+}
+
+type appBuilder struct{}
+
+func (*appBuilder) BuildApp(appFactory AppFactory) (*App, error) {
 	configurator, err := appFactory.CreateConfigurator()
 	if err != nil {
 		return nil, err

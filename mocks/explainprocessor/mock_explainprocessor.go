@@ -8,7 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
-	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
 // NewMockExplainProcessor creates a new instance of MockExplainProcessor. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -139,7 +139,7 @@ func (_c *MockExplainProcessor_ExecuteExplainRequest_Call) RunAndReturn(run func
 }
 
 // UploadFiles provides a mock function for the type MockExplainProcessor
-func (_mock *MockExplainProcessor) UploadFiles(ctx context.Context, files <-chan agent.File) error {
+func (_mock *MockExplainProcessor) UploadFiles(ctx context.Context, files <-chan entities.File) error {
 	ret := _mock.Called(ctx, files)
 
 	if len(ret) == 0 {
@@ -147,7 +147,7 @@ func (_mock *MockExplainProcessor) UploadFiles(ctx context.Context, files <-chan
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan agent.File) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan entities.File) error); ok {
 		r0 = returnFunc(ctx, files)
 	} else {
 		r0 = ret.Error(0)
@@ -162,20 +162,20 @@ type MockExplainProcessor_UploadFiles_Call struct {
 
 // UploadFiles is a helper method to define mock.On call
 //   - ctx context.Context
-//   - files <-chan agent.File
+//   - files <-chan entities.File
 func (_e *MockExplainProcessor_Expecter) UploadFiles(ctx interface{}, files interface{}) *MockExplainProcessor_UploadFiles_Call {
 	return &MockExplainProcessor_UploadFiles_Call{Call: _e.mock.On("UploadFiles", ctx, files)}
 }
 
-func (_c *MockExplainProcessor_UploadFiles_Call) Run(run func(ctx context.Context, files <-chan agent.File)) *MockExplainProcessor_UploadFiles_Call {
+func (_c *MockExplainProcessor_UploadFiles_Call) Run(run func(ctx context.Context, files <-chan entities.File)) *MockExplainProcessor_UploadFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 <-chan agent.File
+		var arg1 <-chan entities.File
 		if args[1] != nil {
-			arg1 = args[1].(<-chan agent.File)
+			arg1 = args[1].(<-chan entities.File)
 		}
 		run(
 			arg0,
@@ -190,7 +190,7 @@ func (_c *MockExplainProcessor_UploadFiles_Call) Return(err error) *MockExplainP
 	return _c
 }
 
-func (_c *MockExplainProcessor_UploadFiles_Call) RunAndReturn(run func(ctx context.Context, files <-chan agent.File) error) *MockExplainProcessor_UploadFiles_Call {
+func (_c *MockExplainProcessor_UploadFiles_Call) RunAndReturn(run func(ctx context.Context, files <-chan entities.File) error) *MockExplainProcessor_UploadFiles_Call {
 	_c.Call.Return(run)
 	return _c
 }

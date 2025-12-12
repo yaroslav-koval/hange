@@ -7,6 +7,7 @@ import (
 	"github.com/openai/openai-go/v3/option"
 	"github.com/yaroslav-koval/hange/pkg/agent"
 	"github.com/yaroslav-koval/hange/pkg/auth"
+	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
 func NewOpenAIAgent(auth auth.Auth) (agent.AIAgent, error) {
@@ -25,7 +26,7 @@ func NewOpenAIAgent(auth auth.Auth) (agent.AIAgent, error) {
 }
 
 type ExplainProcessor interface {
-	UploadFiles(ctx context.Context, files <-chan agent.File) error
+	UploadFiles(ctx context.Context, files <-chan entities.File) error
 	ExecuteExplainRequest(ctx context.Context) (string, error)
 	Cleanup(ctx context.Context)
 }
@@ -35,7 +36,7 @@ type openAIUseCase struct {
 	ep   ExplainProcessor
 }
 
-func (o *openAIUseCase) ExplainFiles(ctx context.Context, files <-chan agent.File) (string, error) {
+func (o *openAIUseCase) ExplainFiles(ctx context.Context, files <-chan entities.File) (string, error) {
 	defer o.ep.Cleanup(ctx)
 
 	if err := o.ep.UploadFiles(ctx, files); err != nil {

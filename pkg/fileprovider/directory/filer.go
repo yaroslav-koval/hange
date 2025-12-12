@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sync/atomic"
 
+	"github.com/yaroslav-koval/hange/pkg/entities"
 	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 	"golang.org/x/sync/errgroup"
 )
@@ -18,7 +19,7 @@ func NewDirectoryFileProvider() fileprovider.FileProvider {
 type directoryReader struct{}
 
 // ReadFiles reads files and directories recursively. Second argument accepts both file paths and directory paths.
-func (d *directoryReader) ReadFiles(ctx context.Context, paths []string) (<-chan fileprovider.File, <-chan error, error) {
+func (d *directoryReader) ReadFiles(ctx context.Context, paths []string) (<-chan entities.File, <-chan error, error) {
 	fileNames, err := d.getAllFileNames(paths)
 	if err != nil {
 		return nil, nil, err
@@ -29,7 +30,7 @@ func (d *directoryReader) ReadFiles(ctx context.Context, paths []string) (<-chan
 		readerWorkers = 1
 	}
 
-	fileCh := make(chan fileprovider.File, len(fileNames)*2)
+	fileCh := make(chan entities.File, len(fileNames)*2)
 
 	doneCh := d.readAndSendFile(ctx, fileNames, readerWorkers, fileCh)
 
@@ -94,7 +95,7 @@ func createErrFailedPath(err error, path string) error {
 }
 
 func (d *directoryReader) readAndSendFile(
-	ctx context.Context, filePaths []string, workersCount int, filesCh chan<- fileprovider.File) <-chan error {
+	ctx context.Context, filePaths []string, workersCount int, filesCh chan<- entities.File) <-chan error {
 	eg, ctx := errgroup.WithContext(ctx)
 
 	fnIndex := atomic.Int32{}
@@ -113,9 +114,9 @@ func (d *directoryReader) readAndSendFile(
 					return err
 				}
 
-				f := fileprovider.File{
-					FilePath: filePaths[i],
-					File:     fBytes,
+				f := entities.File{
+					Path: filePaths[i],
+					Data: fBytes,
 				}
 
 				select {

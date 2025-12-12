@@ -13,7 +13,7 @@ import (
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
-	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/pkg/entities"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -37,10 +37,10 @@ Your task:
 
 How to respond:
 1. Start with a **short high-level overview** of what the files collectively do.
-2. Then go **file by file**:
-   - Explain the **purpose** of each file.
-   - Describe **key structures** (types, classes, interfaces, functions, handlers, etc.).
-   - Explain **how the file fits into the overall system** (dependencies, entry points, responsibilities).
+2. Describe the **project structure**:
+   - Focus on **folders**: what they contain, key responsibilities, and how they connect.
+   - Only drill into **individual files** when they stand alone (e.g., the sole file in a folder or files at the root).
+   - Call out **key structures** (types, classes, interfaces, functions, handlers, etc.) when relevant to that folder or single file.
 3. Highlight:
    - Important **design decisions** or patterns.
    - Any **notable edge cases, constraints, or assumptions**.
@@ -68,7 +68,7 @@ type explainProcessor struct {
 	mutex       *sync.RWMutex
 }
 
-func (ep *explainProcessor) UploadFiles(ctx context.Context, files <-chan agent.File) error {
+func (ep *explainProcessor) UploadFiles(ctx context.Context, files <-chan entities.File) error {
 	if err := ep.uploadFiles(ctx, files); err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (ep *explainProcessor) UploadFiles(ctx context.Context, files <-chan agent.
 	return nil
 }
 
-func (ep *explainProcessor) uploadFiles(ctx context.Context, files <-chan agent.File) error {
+func (ep *explainProcessor) uploadFiles(ctx context.Context, files <-chan entities.File) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
 	consumed := false
@@ -98,7 +98,7 @@ func (ep *explainProcessor) uploadFiles(ctx context.Context, files <-chan agent.
 
 			eg.Go(func() error {
 				params := openai.FileNewParams{
-					File:    openai.File(bytes.NewReader(f.Data), f.Name, "text/plain"),
+					File:    openai.File(bytes.NewReader(f.Data), f.Path, "text/plain"),
 					Purpose: openai.FilePurposeUserData,
 				}
 
@@ -261,6 +261,12 @@ func (ep *explainProcessor) vectorStoreID() string {
 func (ep *explainProcessor) Cleanup(ctx context.Context) {
 	wg := &sync.WaitGroup{}
 
+	// should do cleanup even if context in cancelled
+	ctx = context.Background()
+
+	ep.mutex.RLock()
+	defer ep.mutex.RUnlock()
+
 	for _, f := range ep.files {
 		wg.Go(func() {
 			ep.mutex.RLock()
@@ -287,6 +293,8 @@ func (ep *explainProcessor) Cleanup(ctx context.Context) {
 		}
 	})
 
+	wg.Wait()
+
 	slog.Info("Data cleanup is finished")
 }
 
@@ -301,6 +309,8 @@ func (ep *explainProcessor) ExecuteExplainRequest(ctx context.Context) (string, 
 	ep.mutex.RUnlock()
 
 	input := explainPrompt + strings.Join(fileNames, ", ")
+
+	slog.Info("Calling explanation model...")
 
 	resp, err := ep.client.Responses.New(ctx, responses.ResponseNewParams{
 		Instructions: openai.String(explainInstruction),
@@ -320,8 +330,6 @@ func (ep *explainProcessor) ExecuteExplainRequest(ctx context.Context) (string, 
 	if err != nil {
 		return "", err
 	}
-
-	slog.Info(fmt.Sprintf("Raw response from LLM:%s\n", resp.RawJSON()))
 
 	return resp.OutputText(), nil
 }

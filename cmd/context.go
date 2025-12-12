@@ -18,7 +18,6 @@ func appFromCmdContext(cmd *cobra.Command) *factory.App {
 	v := cmd.Context().Value(appContextKey)
 
 	app, ok := v.(*factory.App)
-
 	if !ok {
 		cobra.CheckErr(errAppNotInitialized)
 	}

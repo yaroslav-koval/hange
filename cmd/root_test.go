@@ -4,106 +4,104 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-
-	appfactory_mock "github.com/yaroslav-koval/hange/mocks/appfactory"
+	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
 	"github.com/yaroslav-koval/hange/pkg/factory"
+	"golang.org/x/sys/unix"
 )
 
-func TestRootCommandConfiguration(t *testing.T) {
+func TestRootCommandFlags(t *testing.T) {
 	require.Equal(t, "hange", rootCmd.Use)
 
-	flag := rootCmd.PersistentFlags().Lookup("config")
-	require.NotNil(t, flag)
-	require.Equal(t, "config", flag.Name)
+	flags := rootCmd.PersistentFlags()
+
+	configFlag := flags.Lookup(flagKeyConfigPath)
+	require.NotNil(t, configFlag)
+	require.Equal(t, "", configFlag.DefValue)
+
+	verboseFlag := flags.Lookup(flagKeyVerbose)
+	require.NotNil(t, verboseFlag)
+	require.Equal(t, "v", verboseFlag.Shorthand)
+	require.Equal(t, "false", verboseFlag.DefValue)
+
+	originalCfg, err := flags.GetString(flagKeyConfigPath)
+	require.NoError(t, err)
+
+	originalVerbose, err := flags.GetBool(flagKeyVerbose)
+	require.NoError(t, err)
+
+	configFlagChanged := configFlag.Changed
+	verboseFlagChanged := verboseFlag.Changed
+
+	t.Cleanup(func() {
+		_ = flags.Set(flagKeyConfigPath, originalCfg)
+		configFlag.Changed = configFlagChanged
+
+		_ = flags.Set(flagKeyVerbose, strconv.FormatBool(originalVerbose))
+		verboseFlag.Changed = verboseFlagChanged
+	})
+
+	newCfg := filepath.Join(t.TempDir(), "config.yaml")
+	require.NoError(t, flags.Set(flagKeyConfigPath, newCfg))
+	cfgValue, err := flags.GetString(flagKeyConfigPath)
+	require.NoError(t, err)
+	require.Equal(t, newCfg, cfgValue)
+
+	require.NoError(t, flags.Set(flagKeyVerbose, "true"))
+	verboseValue, err := flags.GetBool(flagKeyVerbose)
+	require.NoError(t, err)
+	require.True(t, verboseValue)
 }
 
-func TestPersistentPreRunESetsAppContext(t *testing.T) {
-	originalPreRun := rootCmd.PersistentPreRunE
-	t.Cleanup(func() { rootCmd.PersistentPreRunE = originalPreRun })
+func TestRootPersistentPreRunEHandlesCancellation(t *testing.T) {
+	originalBuilder := appBuilder
 
-	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		mockFactory := appfactory_mock.NewMockAppFactory(t)
+	mockAppBuilder := appbuilder_mock.NewMockAppBuilder(t)
 
-		mockFactory.EXPECT().CreateConfigurator().Return(stubConfig{}, nil)
-		mockFactory.EXPECT().CreateTokenFetcher(mock.Anything).Return(stubTokenFetcher{}, nil)
-		mockFactory.EXPECT().CreateTokenStorer(mock.Anything).Return(stubTokenStorer{}, nil)
-		mockFactory.EXPECT().CreateBase64Encryptor().Return(stubEncryptor{}, nil)
-		mockFactory.EXPECT().CreateBase64Decryptor().Return(stubDecryptor{}, nil)
+	cfgPath := filepath.Join(t.TempDir(), "config.yaml")
 
-		app, err := factory.BuildApp(mockFactory)
-		require.NoError(t, err)
+	mockAppBuilder.EXPECT().
+		BuildApp(mock.Anything).
+		RunAndReturn(func(appFactory factory.AppFactory) (*factory.App, error) {
+			require.NotNil(t, appFactory)
 
-		cmd.SetContext(appToCmdContext(cmd, &app))
-		return nil
-	}
+			return &factory.App{}, nil
+		})
+
+	appBuilder = mockAppBuilder
+
+	t.Cleanup(func() {
+		appBuilder = originalBuilder
+	})
 
 	cmd := &cobra.Command{}
+	cmd.Flags().String(flagKeyConfigPath, cfgPath, "config")
+	cmd.Flags().BoolP(flagKeyVerbose, "v", false, "verbose logging")
 	cmd.SetContext(context.Background())
 
 	err := rootCmd.PersistentPreRunE(cmd, nil)
 	require.NoError(t, err)
 
-	val := cmd.Context().Value(appContextKey)
-	require.IsType(t, &factory.App{}, val)
-	app := val.(*factory.App)
-	require.NotNil(t, app.Auth)
-	require.NotNil(t, app.Config)
-}
+	ctx := cmd.Context()
 
-func TestPersistentPreRunEReturnsErrorWhenConfigMissing(t *testing.T) {
-	missingCfg := filepath.Join(t.TempDir(), "missing.yaml")
-
-	originalCfgFile := cfgPath
-	t.Cleanup(func() { cfgPath = originalCfgFile })
-	cfgPath = missingCfg
-
-	cmd := &cobra.Command{}
-	cmd.SetContext(context.Background())
-
-	err := rootCmd.PersistentPreRunE(cmd, nil)
-	require.Error(t, err)
-}
-
-func writeTempConfig(t *testing.T) string {
-	t.Helper()
-
-	dir := t.TempDir()
-	cfg := filepath.Join(dir, ".hange.yaml")
-	err := os.WriteFile(cfg, []byte(`openai:
-  api_key: dummy
-`), 0o600)
+	proc, err := os.FindProcess(os.Getpid())
 	require.NoError(t, err)
+	require.NoError(t, proc.Signal(unix.SIGTERM))
 
-	return cfg
+	require.Eventually(t, func() bool {
+		select {
+		case <-ctx.Done():
+			return true
+		default:
+			return false
+		}
+	}, time.Second, 10*time.Millisecond)
+
+	require.ErrorIs(t, ctx.Err(), context.Canceled)
 }
-
-type stubAuth struct{}
-
-func (stubAuth) SaveToken(string) error    { return nil }
-func (stubAuth) GetToken() (string, error) { return "token", nil }
-
-type stubConfig struct{}
-
-func (stubConfig) WriteField(string, any) error { return nil }
-func (stubConfig) ReadField(string) any         { return nil }
-
-type stubTokenFetcher struct{}
-
-func (stubTokenFetcher) Fetch() (string, error) { return "token", nil }
-
-type stubTokenStorer struct{}
-
-func (stubTokenStorer) Store(string) error { return nil }
-
-type stubEncryptor struct{}
-
-func (stubEncryptor) Encrypt(v []byte) ([]byte, error) { return v, nil }
-
-type stubDecryptor struct{}
-
-func (stubDecryptor) Decrypt(v []byte) ([]byte, error) { return v, nil }

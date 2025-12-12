@@ -8,7 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
-	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
 // NewMockAIAgent creates a new instance of MockAIAgent. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -39,7 +39,7 @@ func (_m *MockAIAgent) EXPECT() *MockAIAgent_Expecter {
 }
 
 // ExplainFiles provides a mock function for the type MockAIAgent
-func (_mock *MockAIAgent) ExplainFiles(ctx context.Context, files <-chan agent.File) (string, error) {
+func (_mock *MockAIAgent) ExplainFiles(ctx context.Context, files <-chan entities.File) (string, error) {
 	ret := _mock.Called(ctx, files)
 
 	if len(ret) == 0 {
@@ -48,15 +48,15 @@ func (_mock *MockAIAgent) ExplainFiles(ctx context.Context, files <-chan agent.F
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan agent.File) (string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan entities.File) (string, error)); ok {
 		return returnFunc(ctx, files)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan agent.File) string); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan entities.File) string); ok {
 		r0 = returnFunc(ctx, files)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, <-chan agent.File) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, <-chan entities.File) error); ok {
 		r1 = returnFunc(ctx, files)
 	} else {
 		r1 = ret.Error(1)
@@ -71,20 +71,20 @@ type MockAIAgent_ExplainFiles_Call struct {
 
 // ExplainFiles is a helper method to define mock.On call
 //   - ctx context.Context
-//   - files <-chan agent.File
+//   - files <-chan entities.File
 func (_e *MockAIAgent_Expecter) ExplainFiles(ctx interface{}, files interface{}) *MockAIAgent_ExplainFiles_Call {
 	return &MockAIAgent_ExplainFiles_Call{Call: _e.mock.On("ExplainFiles", ctx, files)}
 }
 
-func (_c *MockAIAgent_ExplainFiles_Call) Run(run func(ctx context.Context, files <-chan agent.File)) *MockAIAgent_ExplainFiles_Call {
+func (_c *MockAIAgent_ExplainFiles_Call) Run(run func(ctx context.Context, files <-chan entities.File)) *MockAIAgent_ExplainFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 <-chan agent.File
+		var arg1 <-chan entities.File
 		if args[1] != nil {
-			arg1 = args[1].(<-chan agent.File)
+			arg1 = args[1].(<-chan entities.File)
 		}
 		run(
 			arg0,
@@ -99,7 +99,7 @@ func (_c *MockAIAgent_ExplainFiles_Call) Return(s string, err error) *MockAIAgen
 	return _c
 }
 
-func (_c *MockAIAgent_ExplainFiles_Call) RunAndReturn(run func(ctx context.Context, files <-chan agent.File) (string, error)) *MockAIAgent_ExplainFiles_Call {
+func (_c *MockAIAgent_ExplainFiles_Call) RunAndReturn(run func(ctx context.Context, files <-chan entities.File) (string, error)) *MockAIAgent_ExplainFiles_Call {
 	_c.Call.Return(run)
 	return _c
 }
