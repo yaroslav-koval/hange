@@ -13,7 +13,7 @@ A small CLI soldier that goes hand in hand with a developer. An agentic answer f
 
 ### Buzzwords 😎
 
-Agent, RAG, Cobra CLI (MCP not adopted yet 😔)
+Agent, RAG, Vector store, Cobra CLI (MCP not adopted yet 😔)
 
 ## Development
 
