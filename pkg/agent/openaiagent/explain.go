@@ -134,17 +134,6 @@ func (ep *explainProcessor) uploadFiles(ctx context.Context, files <-chan agent.
 }
 
 func (ep *explainProcessor) createVectorStore(ctx context.Context) error {
-	ep.mutex.RLock()
-
-	fileIDs := make([]string, len(ep.files))
-	for i, f := range ep.files {
-		fileIDs[i] = f.ID
-	}
-
-	filesCount := int64(len(ep.files))
-
-	ep.mutex.RUnlock()
-
 	vs, err := ep.client.VectorStores.New(ctx, openai.VectorStoreNewParams{
 		Name:             openai.String("hange_" + strconv.Itoa(int(time.Now().UTC().Unix()))),
 		Metadata:         nil,
@@ -179,51 +168,62 @@ func (ep *explainProcessor) createVectorStore(ctx context.Context) error {
 		return err
 	}
 
-	slog.Debug(fmt.Sprintf("Vector store created:\n%s\n", vs.RawJSON()))
+	ep.mutex.Lock()
+	ep.vectorStore = vs
+	ep.mutex.Unlock()
 
-	fb, err := ep.client.VectorStores.FileBatches.New(ctx, vs.ID, openai.VectorStoreFileBatchNewParams{
+	slog.Info("Vector store created")
+	slog.Debug(vs.RawJSON())
+
+	ep.mutex.RLock()
+
+	fileIDs := make([]string, len(ep.files))
+	for i, f := range ep.files {
+		fileIDs[i] = f.ID
+	}
+
+	filesCount := int64(len(ep.files))
+
+	ep.mutex.RUnlock()
+
+	_, err = ep.client.VectorStores.FileBatches.New(ctx, vs.ID, openai.VectorStoreFileBatchNewParams{
 		FileIDs: fileIDs,
 	})
 	if err != nil {
 		return err
 	}
 
+	slog.Info("Started files batch processing...")
+
 	// wait until files are processed
-	if (fb.FileCounts.Total - fb.FileCounts.InProgress) != filesCount {
-		fb, err = retry(ctx, func() (*openai.VectorStoreFileBatch, bool, error) {
-			fb, err := ep.client.VectorStores.FileBatches.New(ctx, vs.ID, openai.VectorStoreFileBatchNewParams{
-				FileIDs: fileIDs,
-			})
-			if err != nil {
-				return nil, false, err
-			}
-
-			slog.Debug(fmt.Sprintf("Files processing status:\n%s\n", fb.FileCounts.RawJSON()))
-
-			if (fb.FileCounts.Total - fb.FileCounts.InProgress) == filesCount {
-				return fb, true, nil
-			}
-
-			return nil, false, nil
-		}, 500*time.Millisecond, 10)
+	vs, err = retry(ctx, func() (*openai.VectorStore, bool, error) {
+		vs, err = ep.client.VectorStores.Get(ctx, ep.vectorStore.ID)
 		if err != nil {
-			return err
+			return nil, false, err
 		}
 
-		if fb.FileCounts.Failed != 0 {
-			return ErrFailedToProcessFiles
+		slog.Debug(fmt.Sprintf("Files processing status: %v\n%s\n", vs.Status, vs.FileCounts.RawJSON()))
+
+		if (vs.FileCounts.Total - vs.FileCounts.InProgress) == filesCount {
+			return vs, true, nil
 		}
+
+		return nil, false, nil
+	}, time.Second, 0)
+	if err != nil {
+		return err
 	}
 
-	slog.Debug(fmt.Sprintf("File batch is uploaded to vector store %s:\n", vs.ID))
+	if vs.FileCounts.Failed != 0 {
+		return ErrFailedToProcessFiles
+	}
 
-	ep.mutex.Lock()
-	defer ep.mutex.Unlock()
-	ep.vectorStore = vs
+	slog.Info("File batch is uploaded to vector store")
 
 	return nil
 }
 
+// 0 attempts means infinite polling
 func retry[T any](ctx context.Context, f func() (*T, bool, error), interval time.Duration, attempts int) (*T, error) {
 	attemptsCounter := 0
 
@@ -268,7 +268,7 @@ func (ep *explainProcessor) Cleanup(ctx context.Context) {
 
 			_, err := ep.client.Files.Delete(ctx, f.ID)
 			if err != nil {
-				slog.Debug(fmt.Sprintf("Failed to delete file by id %s: %s", f.ID, err))
+				slog.Error(fmt.Sprintf("Failed to delete file by id %s: %s", f.ID, err))
 			} else {
 				slog.Debug(fmt.Sprintf("File is deleted by id %s", f.ID))
 			}
@@ -281,15 +281,13 @@ func (ep *explainProcessor) Cleanup(ctx context.Context) {
 
 		_, err := ep.client.VectorStores.Delete(ctx, ep.vectorStore.ID)
 		if err != nil {
-			slog.Debug(fmt.Sprintf("Failed to delete vector store by id %s: %s", ep.vectorStore.ID, err))
+			slog.Error(fmt.Sprintf("Failed to delete vector store by id %s: %s", ep.vectorStore.ID, err))
 		} else {
 			slog.Debug(fmt.Sprintf("Vector store is deleted by id %s", ep.vectorStore.ID))
 		}
 	})
 
-	wg.Wait()
-
-	slog.Debug("Cleanup is finished")
+	slog.Info("Data cleanup is finished")
 }
 
 func (ep *explainProcessor) ExecuteExplainRequest(ctx context.Context) (string, error) {

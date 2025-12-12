@@ -56,7 +56,7 @@ func TestExplainProcessor_uploadFiles(t *testing.T) {
 	filesCh <- agent.File{Name: "two.md", Data: strings.NewReader("two")}
 	close(filesCh)
 
-	ep := newTextExplainProcessor(client)
+	ep := newTestExplainProcessor(client)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -75,6 +75,26 @@ func TestExplainProcessor_uploadFiles(t *testing.T) {
 	mu.Lock()
 	require.Equal(t, 2, counter)
 	mu.Unlock()
+}
+
+func TestExplainProcessor_uploadFiles_contextCancelled(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	filesCh := make(chan agent.File)
+	close(filesCh)
+
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Fatalf("unexpected request %s %s", r.Method, r.URL.Path)
+	})
+
+	ep := newTestExplainProcessor(client)
+
+	err := ep.uploadFiles(ctx, filesCh)
+	require.ErrorIs(t, err, ErrContextCancelled)
+	require.Empty(t, ep.files)
 }
 
 func TestExplainProcessor_createVectorStore(t *testing.T) {
@@ -124,7 +144,7 @@ func TestExplainProcessor_createVectorStore(t *testing.T) {
 		}
 	})
 
-	ep := newTextExplainProcessor(client)
+	ep := newTestExplainProcessor(client)
 	ep.files = testFiles
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -137,7 +157,7 @@ func TestExplainProcessor_createVectorStore(t *testing.T) {
 	require.ElementsMatch(t, []string{"file_a", "file_b"}, receivedFileIDs)
 }
 
-func TestExplainProcessor_createVectorStore_retriesFileBatch(t *testing.T) {
+func TestExplainProcessor_createVectorStore_waitsForFileProcessing(t *testing.T) {
 	t.Parallel()
 
 	testFiles := []*openai.FileObject{
@@ -145,7 +165,11 @@ func TestExplainProcessor_createVectorStore_retriesFileBatch(t *testing.T) {
 		{ID: "file_b"},
 	}
 
-	var batchCalls int
+	var (
+		batchCreated    bool
+		getRequests     int
+		receivedFileIDs []string
+	)
 
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		switch {
@@ -153,36 +177,42 @@ func TestExplainProcessor_createVectorStore_retriesFileBatch(t *testing.T) {
 			w.Header().Set("Content-Type", "application/json")
 			require.NoError(t, json.NewEncoder(w).Encode(newVectorStore("vs_retry", openai.VectorStoreStatusInProgress, len(testFiles))))
 		case r.Method == http.MethodGet && r.URL.Path == "/vector_stores/vs_retry":
-			w.Header().Set("Content-Type", "application/json")
-			require.NoError(t, json.NewEncoder(w).Encode(newVectorStore("vs_retry", openai.VectorStoreStatusCompleted, len(testFiles))))
-		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/file_batches"):
-			batchCalls++
+			getRequests++
 
-			fileCounts := openai.VectorStoreFileBatchFileCounts{
-				Cancelled:  0,
-				Completed:  int64(batchCalls),
-				Failed:     0,
-				InProgress: int64(len(testFiles) - batchCalls),
-				Total:      int64(len(testFiles)),
+			w.Header().Set("Content-Type", "application/json")
+			resp := newVectorStore("vs_retry", openai.VectorStoreStatusCompleted, len(testFiles))
+
+			switch {
+			case !batchCreated && getRequests == 1:
+				resp.Status = openai.VectorStoreStatusInProgress
+			case batchCreated && getRequests == 3:
+				resp.FileCounts.InProgress = int64(len(testFiles))
+				resp.FileCounts.Completed = 0
 			}
-			if fileCounts.InProgress < 0 {
-				fileCounts.InProgress = 0
-				fileCounts.Completed = int64(len(testFiles))
+
+			require.NoError(t, json.NewEncoder(w).Encode(resp))
+		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/file_batches"):
+			batchCreated = true
+
+			var body struct {
+				FileIDs []string `json:"file_ids"`
 			}
+			require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+			receivedFileIDs = append(receivedFileIDs, body.FileIDs...)
 
 			resp := openai.VectorStoreFileBatch{
-				ID:         fmt.Sprintf("batch_%d", batchCalls),
-				CreatedAt:  time.Now().UTC().Unix(),
-				FileCounts: fileCounts,
-				Object:     constant.VectorStoreFilesBatch("vector_store.file_batch"),
-				Status:     openai.VectorStoreFileBatchStatusInProgress,
-				VectorStoreID: func() string {
-					return "vs_retry"
-				}(),
-			}
-
-			if fileCounts.InProgress == 0 {
-				resp.Status = openai.VectorStoreFileBatchStatusCompleted
+				ID:        fmt.Sprintf("batch_%d", len(receivedFileIDs)),
+				CreatedAt: time.Now().UTC().Unix(),
+				FileCounts: openai.VectorStoreFileBatchFileCounts{
+					Cancelled:  0,
+					Completed:  0,
+					Failed:     0,
+					InProgress: int64(len(body.FileIDs)),
+					Total:      int64(len(body.FileIDs)),
+				},
+				Object:        constant.VectorStoreFilesBatch("vector_store.file_batch"),
+				Status:        openai.VectorStoreFileBatchStatusInProgress,
+				VectorStoreID: "vs_retry",
 			}
 
 			w.Header().Set("Content-Type", "application/json")
@@ -192,7 +222,7 @@ func TestExplainProcessor_createVectorStore_retriesFileBatch(t *testing.T) {
 		}
 	})
 
-	ep := newTextExplainProcessor(client)
+	ep := newTestExplainProcessor(client)
 	ep.files = testFiles
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -202,7 +232,98 @@ func TestExplainProcessor_createVectorStore_retriesFileBatch(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, ep.vectorStore)
 	require.Equal(t, "vs_retry", ep.vectorStore.ID)
-	require.GreaterOrEqual(t, batchCalls, 2)
+	require.ElementsMatch(t, []string{"file_a", "file_b"}, receivedFileIDs)
+	require.GreaterOrEqual(t, getRequests, 4)
+}
+
+func TestExplainProcessor_createVectorStore_returnsErrorOnFailedFiles(t *testing.T) {
+	t.Parallel()
+
+	testFiles := []*openai.FileObject{
+		{ID: "file_a"},
+		{ID: "file_b"},
+	}
+
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/vector_stores":
+			w.Header().Set("Content-Type", "application/json")
+			require.NoError(t, json.NewEncoder(w).Encode(newVectorStore("vs_fail", openai.VectorStoreStatusCompleted, len(testFiles))))
+		case r.Method == http.MethodGet && r.URL.Path == "/vector_stores/vs_fail":
+			resp := newVectorStore("vs_fail", openai.VectorStoreStatusCompleted, len(testFiles))
+			resp.FileCounts.Failed = 1
+			resp.FileCounts.Completed = int64(len(testFiles) - 1)
+			resp.FileCounts.InProgress = 0
+
+			w.Header().Set("Content-Type", "application/json")
+			require.NoError(t, json.NewEncoder(w).Encode(resp))
+		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/file_batches"):
+			resp := openai.VectorStoreFileBatch{
+				ID:        "vs_fail_batch",
+				CreatedAt: time.Now().UTC().Unix(),
+				FileCounts: openai.VectorStoreFileBatchFileCounts{
+					Cancelled:  0,
+					Completed:  0,
+					Failed:     0,
+					InProgress: int64(len(testFiles)),
+					Total:      int64(len(testFiles)),
+				},
+				Object:        constant.VectorStoreFilesBatch("vector_store.file_batch"),
+				Status:        openai.VectorStoreFileBatchStatusInProgress,
+				VectorStoreID: "vs_fail",
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			require.NoError(t, json.NewEncoder(w).Encode(resp))
+		default:
+			t.Fatalf("unexpected request %s %s", r.Method, r.URL.Path)
+		}
+	})
+
+	ep := newTestExplainProcessor(client)
+	ep.files = testFiles
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	err := ep.createVectorStore(ctx)
+	require.ErrorIs(t, err, ErrFailedToProcessFiles)
+}
+
+func TestExplainProcessor_createVectorStore_returnsErrWhenVectorStoreStuck(t *testing.T) {
+	t.Parallel()
+
+	testFiles := []*openai.FileObject{
+		{ID: "file_a"},
+	}
+
+	var getCalls int
+
+	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/vector_stores":
+			w.Header().Set("Content-Type", "application/json")
+			require.NoError(t, json.NewEncoder(w).Encode(newVectorStore("vs_stuck", openai.VectorStoreStatusInProgress, len(testFiles))))
+		case r.Method == http.MethodGet && r.URL.Path == "/vector_stores/vs_stuck":
+			getCalls++
+
+			w.Header().Set("Content-Type", "application/json")
+			require.NoError(t, json.NewEncoder(w).Encode(newVectorStore("vs_stuck", openai.VectorStoreStatusInProgress, len(testFiles))))
+		default:
+			t.Fatalf("unexpected request %s %s", r.Method, r.URL.Path)
+		}
+	})
+
+	ep := newTestExplainProcessor(client)
+	ep.files = testFiles
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := ep.createVectorStore(ctx)
+	require.ErrorIs(t, err, ErrTooManyAttempts)
+	require.Nil(t, ep.vectorStore)
+	require.Equal(t, 5, getCalls)
 }
 
 func TestExplainProcessor_Cleanup(t *testing.T) {
@@ -212,7 +333,10 @@ func TestExplainProcessor_Cleanup(t *testing.T) {
 		mu                 sync.Mutex
 		deletedFiles       = map[string]int{}
 		vectorStoreDeleted bool
+		wg                 sync.WaitGroup
 	)
+
+	wg.Add(3)
 
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		switch {
@@ -222,6 +346,7 @@ func TestExplainProcessor_Cleanup(t *testing.T) {
 			mu.Lock()
 			deletedFiles[id]++
 			mu.Unlock()
+			wg.Done()
 
 			resp := openai.FileDeleted{
 				ID:      id,
@@ -238,6 +363,7 @@ func TestExplainProcessor_Cleanup(t *testing.T) {
 			mu.Lock()
 			vectorStoreDeleted = true
 			mu.Unlock()
+			wg.Done()
 
 			resp := openai.VectorStoreDeleted{
 				ID:      id,
@@ -252,7 +378,7 @@ func TestExplainProcessor_Cleanup(t *testing.T) {
 		}
 	})
 
-	ep := newTextExplainProcessor(client)
+	ep := newTestExplainProcessor(client)
 	ep.files = []*openai.FileObject{
 		{ID: "file_a"},
 		{ID: "file_b"},
@@ -260,6 +386,18 @@ func TestExplainProcessor_Cleanup(t *testing.T) {
 	ep.vectorStore = &openai.VectorStore{ID: "vs_cleanup"}
 
 	ep.Cleanup(context.Background())
+
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatalf("cleanup did not finish requests in time")
+	}
 
 	mu.Lock()
 	defer mu.Unlock()
@@ -302,7 +440,7 @@ func TestExplainProcessor_ExecuteExplainRequest(t *testing.T) {
 		require.NoError(t, json.NewEncoder(w).Encode(newResponsePayload("generated explanation")))
 	})
 
-	ep := newTextExplainProcessor(client)
+	ep := newTestExplainProcessor(client)
 	ep.files = []*openai.FileObject{
 		{ID: "file_a", Filename: fileNames[0]},
 		{ID: "file_b", Filename: fileNames[1]},
@@ -463,7 +601,7 @@ func TestRetry(t *testing.T) {
 	})
 }
 
-func newTextExplainProcessor(client *openai.Client) *explainProcessor {
+func newTestExplainProcessor(client *openai.Client) *explainProcessor {
 	return &explainProcessor{
 		client: client,
 		mutex:  &sync.RWMutex{},
