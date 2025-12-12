@@ -1,13 +1,99 @@
-package files
+package directory
 
 import (
+	"context"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/pkg/graceful"
 )
+
+func TestReadFilesSuccess(t *testing.T) {
+	t.Parallel()
+
+	td := t.TempDir()
+	require.NoError(t, os.WriteFile(path.Join(td, "a.txt"), []byte("x"), 0o600))
+	require.NoError(t, os.WriteFile(path.Join(td, "b.txt"), []byte("x"), 0o600))
+	require.NoError(t, os.WriteFile(path.Join(td, "c.txt"), []byte("x"), 0o600))
+
+	dr := NewDirectoryFileProvider()
+	filesCh, doneCh, err := dr.ReadFiles(graceful.Shutdown(t.Context()), []string{td})
+	require.NoError(t, err)
+
+	var files []fileprovider.File
+
+	for f := range filesCh {
+		files = append(files, f)
+	}
+
+	assert.Equal(t, 3, len(files))
+
+	e, ok := <-doneCh
+	assert.True(t, ok)
+	assert.NoError(t, e)
+}
+
+func TestReadFilesFail(t *testing.T) {
+	t.Parallel()
+
+	td := t.TempDir()
+	require.NoError(t, os.WriteFile(path.Join(td, "a.txt"), []byte("x"), 0o600))
+	require.NoError(t, os.WriteFile(path.Join(td, "b.txt"), []byte("x"), 0o000)) // not rights to read
+
+	dr := NewDirectoryFileProvider()
+	_, doneCh, err := dr.ReadFiles(graceful.Shutdown(t.Context()), []string{td})
+	require.NoError(t, err)
+
+	e, ok := <-doneCh
+	assert.True(t, ok)
+	assert.ErrorIs(t, e, os.ErrPermission)
+}
+
+func TestReadFilesMissingPath(t *testing.T) {
+	t.Parallel()
+
+	dr := NewDirectoryFileProvider()
+	filesCh, doneCh, err := dr.ReadFiles(t.Context(), []string{"missing.txt"})
+
+	require.Error(t, err)
+	assert.Nil(t, filesCh)
+	assert.Nil(t, doneCh)
+	assert.ErrorIs(t, err, os.ErrNotExist)
+	assert.ErrorContains(t, err, "missing.txt")
+}
+
+func TestReadFilesCancelledContext(t *testing.T) {
+	t.Parallel()
+
+	td := t.TempDir()
+	p := filepath.Join(td, "a.txt")
+	writeFiles(t, []string{p})
+
+	ctx, cancel := context.WithCancel(graceful.Shutdown(t.Context()))
+	filesCh := make(chan fileprovider.File)
+
+	dr := &directoryReader{}
+	doneCh := dr.readAndSendFile(ctx, []string{p}, 1, filesCh)
+
+	cancel()
+
+	var doneErr error
+	select {
+	case doneErr = <-doneCh:
+	case <-time.After(time.Second):
+		t.Fatal("timeout waiting for done channel")
+	}
+	assert.ErrorIs(t, doneErr, context.Canceled)
+
+	_, ok := <-filesCh
+	assert.False(t, ok)
+}
 
 func TestDirectoryReader_getAllFileNames(t *testing.T) {
 	t.Parallel()
@@ -170,14 +256,20 @@ func TestParsingFailures(t *testing.T) {
 		assert.ErrorContains(t, err, "missing.txt")
 	})
 
-	t.Run("readFilesInDir returns error on missing directory", func(t *testing.T) {
+	t.Run("getAllFileNames returns error when nested directory cannot be read", func(t *testing.T) {
 		t.Parallel()
 
+		root := t.TempDir()
+		nested := filepath.Join(root, "dir", "nested")
+
+		require.NoError(t, os.MkdirAll(nested, 0o755))
+		require.NoError(t, os.Chmod(nested, 0o000))
+		defer os.Chmod(nested, 0o755)
+
 		dr := &directoryReader{}
-		_, err := dr.readFilesInDir("missing-dir")
+		_, err := dr.getAllFileNames([]string{root})
 		require.Error(t, err)
-		assert.ErrorIs(t, err, os.ErrNotExist)
-		assert.ErrorContains(t, err, "missing-dir")
+		assert.ErrorContains(t, err, nested)
 	})
 
 	t.Run("readFilesInDir returns error when child directory cannot be read", func(t *testing.T) {

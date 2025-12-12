@@ -16,7 +16,6 @@ import (
 
 var (
 	cfgPath    = os.Getenv(envs.EnvHangeConfigPath)
-	cancel     context.CancelFunc
 	appFactory = appfactory.NewCLIFactory
 )
 
@@ -27,14 +26,12 @@ var rootCmd = &cobra.Command{
 	Long: `A reliable CLI soldier to perform developer's routine tasks. 
 It likes to explain code, write documentation and just chat.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		ctx, c := context.WithCancel(cmd.Context())
-		cancel = c
+		ctx, cancel := context.WithCancel(cmd.Context())
 		cmd.SetContext(ctx)
 
 		sigCh := makeSignalChan()
 
 		go func() {
-			slog.Debug("Listening for a termination signal")
 			<-sigCh
 			slog.Info("Terminated")
 			cancel()
@@ -46,13 +43,10 @@ It likes to explain code, write documentation and just chat.`,
 			return err
 		}
 
-		ctx = appToCmdContext(cmd, &app)
+		ctx = appToCmdContext(cmd, app)
 		cmd.SetContext(ctx)
 
 		return nil
-	},
-	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		cancel()
 	},
 }
 

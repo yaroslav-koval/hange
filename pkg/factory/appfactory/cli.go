@@ -9,6 +9,8 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/crypt"
 	"github.com/yaroslav-koval/hange/pkg/crypt/base64"
 	"github.com/yaroslav-koval/hange/pkg/factory"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider/directory"
 )
 
 func NewCLIFactory(configPath string) factory.AppFactory {
@@ -39,4 +41,8 @@ func (c *cliFactory) CreateBase64Encryptor() (crypt.Encryptor, error) {
 
 func (c *cliFactory) CreateBase64Decryptor() (crypt.Decryptor, error) {
 	return base64.NewBase64Decryptor(), nil
+}
+
+func (c *cliFactory) CreateFileProvider() (fileprovider.FileProvider, error) {
+	return directory.NewDirectoryFileProvider(), nil
 }

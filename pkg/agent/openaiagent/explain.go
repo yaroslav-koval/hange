@@ -1,6 +1,7 @@
 package openaiagent
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -19,7 +20,6 @@ import (
 const explanationModel = "gpt-5-nano"
 
 var ErrTooManyAttempts = errors.New("too many attempts")
-var ErrContextCancelled = errors.New("context cancelled")
 var ErrFailedToProcessFiles = errors.New("failed to process files")
 
 func newExplainProcessor(client *openai.Client) ExplainProcessor {
@@ -81,14 +81,14 @@ func (ep *explainProcessor) UploadFiles(ctx context.Context, files <-chan agent.
 }
 
 func (ep *explainProcessor) uploadFiles(ctx context.Context, files <-chan agent.File) error {
-	eg := &errgroup.Group{}
+	eg, ctx := errgroup.WithContext(ctx)
 
 	consumed := false
 
 	for !consumed {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("failed to upload files: %w", ErrContextCancelled)
+			return fmt.Errorf("failed to upload files: %w", context.Canceled)
 		default:
 			f, ok := <-files
 			if !ok {
@@ -98,7 +98,7 @@ func (ep *explainProcessor) uploadFiles(ctx context.Context, files <-chan agent.
 
 			eg.Go(func() error {
 				params := openai.FileNewParams{
-					File:    openai.File(f.Data, f.Name, "text/plain"),
+					File:    openai.File(bytes.NewReader(f.Data), f.Name, "text/plain"),
 					Purpose: openai.FilePurposeUserData,
 				}
 
@@ -230,7 +230,7 @@ func retry[T any](ctx context.Context, f func() (*T, bool, error), interval time
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, ErrContextCancelled
+			return nil, context.Canceled
 		default:
 			v, ok, err := f()
 			if err != nil {

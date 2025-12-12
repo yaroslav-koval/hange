@@ -52,8 +52,8 @@ func TestExplainProcessor_uploadFiles(t *testing.T) {
 	})
 
 	filesCh := make(chan agent.File, 2)
-	filesCh <- agent.File{Name: "one.go", Data: strings.NewReader("one")}
-	filesCh <- agent.File{Name: "two.md", Data: strings.NewReader("two")}
+	filesCh <- agent.File{Name: "one.go", Data: []byte("one")}
+	filesCh <- agent.File{Name: "two.md", Data: []byte("two")}
 	close(filesCh)
 
 	ep := newTestExplainProcessor(client)
@@ -93,7 +93,7 @@ func TestExplainProcessor_uploadFiles_contextCancelled(t *testing.T) {
 	ep := newTestExplainProcessor(client)
 
 	err := ep.uploadFiles(ctx, filesCh)
-	require.ErrorIs(t, err, ErrContextCancelled)
+	require.ErrorIs(t, err, context.Canceled)
 	require.Empty(t, ep.files)
 }
 
@@ -595,7 +595,7 @@ func TestRetry(t *testing.T) {
 			return nil, false, nil
 		}, 0, 5)
 
-		require.ErrorIs(t, err, ErrContextCancelled)
+		require.ErrorIs(t, err, context.Canceled)
 		require.Nil(t, got)
 		require.Equal(t, 1, callCount)
 	})

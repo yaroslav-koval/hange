@@ -2,7 +2,6 @@ package agent
 
 import (
 	"context"
-	"io"
 )
 
 type AIAgent interface {
@@ -13,5 +12,5 @@ type AIAgent interface {
 
 type File struct {
 	Name string
-	Data io.Reader
+	Data []byte
 }
