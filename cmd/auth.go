@@ -15,7 +15,7 @@ import (
 var authCmd = &cobra.Command{
 	Use:   "auth [token]",
 	Short: "Authenticate user",
-	Long:  `Authenticate CLI through OpenAPI token. This is a mandatory command to perform any LLM call`,
+	Long:  `Authenticate CLI through OpenAPI token. This is a mandatory command to perform any LLM call.`,
 	Example: `hange auth < token-file
 cat token-file | hange auth
 echo "token-value" | hange auth

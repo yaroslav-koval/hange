@@ -13,7 +13,7 @@ import (
 var explainCmd = &cobra.Command{
 	Use:     "explain [inputs]",
 	Short:   "Explain file(s) or directory(ies)",
-	Long:    `Explain file(s) or directory(ies) from the engineer's perspective`,
+	Long:    `Explain file(s) or directory(ies) from the engineer's perspective.`,
 	Example: `hange explain file1 file2 directory`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		app := appFromCmdContext(cmd)
