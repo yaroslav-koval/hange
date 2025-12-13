@@ -285,6 +285,10 @@ func (ep *explainProcessor) Cleanup(ctx context.Context) {
 		ep.mutex.RLock()
 		defer ep.mutex.RUnlock()
 
+		if ep.vectorStore == nil {
+			return
+		}
+
 		_, err := ep.client.VectorStores.Delete(ctx, ep.vectorStore.ID)
 		if err != nil {
 			slog.Error(fmt.Sprintf("Failed to delete vector store by id %s: %s", ep.vectorStore.ID, err))
