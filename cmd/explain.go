@@ -11,7 +11,7 @@ import (
 )
 
 var explainCmd = &cobra.Command{
-	Use:     "explain",
+	Use:     "explain [inputs]",
 	Short:   "Explain file(s) or directory(ies)",
 	Long:    `Explain file(s) or directory(ies) from the engineer's perspective`,
 	Example: `hange explain file1 file2 directory`,
