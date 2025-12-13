@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	_ "embed"
 	"log/slog"
 	"os"
@@ -39,16 +38,15 @@ It likes to explain code, write documentation and just chat.`,
 			slog.SetLogLoggerLevel(slog.LevelDebug)
 		}
 
-		ctx, cancel := context.WithCancel(cmd.Context())
-		cmd.SetContext(ctx)
-
-		sigCh := makeOsSignalChan()
+		ctx, cancel := signal.NotifyContext(cmd.Context(), syscall.SIGINT, syscall.SIGTERM)
 
 		go func() {
-			<-sigCh
+			<-ctx.Done()
 			slog.Info("Terminated")
 			cancel()
 		}()
+
+		cmd.SetContext(ctx)
 
 		cfgPath, err := cmd.Flags().GetString(flagKeyConfigPath)
 		if err != nil {
@@ -81,12 +79,4 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringP(flagKeyConfigPath, "", os.Getenv(envs.EnvHangeConfigPath), "config file (default is $HOME/.hange.yaml)")
 	rootCmd.PersistentFlags().BoolP(flagKeyVerbose, "v", false, "verbose logging")
-}
-
-func makeOsSignalChan() <-chan os.Signal {
-	sigs := make(chan os.Signal, 1)
-
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	return sigs
 }
