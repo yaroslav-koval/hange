@@ -104,13 +104,11 @@ func (d *directoryReader) readAndSendFile(
 	for range workersCount {
 		eg.Go(func() error {
 			for {
-				// This function has 2 selects.
-				// First (right below) is needed to instantly stop the logic to avoid heavy operation of file reads.
-				// Second (at the end) is used to create non-blocking behaviour.
-				select {
-				case <-ctx.Done():
-					return context.Canceled
-				default:
+				// Select statement (at the end) doesn't guarantee order of cases execution.
+				// So, the logic still can produce values several iterations even if context is cancelled.
+				// Condition "ctx.Err() != nil" helps to prevent heavy os file reads in that case.
+				if ctx.Err() != nil {
+					return ctx.Err()
 				}
 
 				i := fnIndex.Add(1)
