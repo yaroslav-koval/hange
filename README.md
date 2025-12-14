@@ -21,7 +21,7 @@ Agent, RAG, Vector store, Goroutines, Worker Pool, Cobra CLI (MCP not adopted ye
 Shortest way to build the command is
 
 ```shell
-go install . && hange -h  
+go install . && hange version
 ```
 
 ## Techs
