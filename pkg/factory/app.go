@@ -7,6 +7,7 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/config"
 	"github.com/yaroslav-koval/hange/pkg/crypt"
 	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/pkg/git"
 )
 
 type AppBuilder interface {
@@ -20,6 +21,7 @@ type AppFactory interface {
 	CreateBase64Encryptor() (crypt.Encryptor, error)
 	CreateBase64Decryptor() (crypt.Decryptor, error)
 	CreateFileProvider() (fileprovider.FileProvider, error)
+	CreateGitChangesProvider() (git.ChangesProvider, error)
 }
 
 type App struct {

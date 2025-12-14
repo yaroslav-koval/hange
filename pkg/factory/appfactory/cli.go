@@ -11,6 +11,8 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/factory"
 	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 	"github.com/yaroslav-koval/hange/pkg/fileprovider/directory"
+	"github.com/yaroslav-koval/hange/pkg/git"
+	"github.com/yaroslav-koval/hange/pkg/git/gitadapter"
 )
 
 func NewCLIFactory(configPath string) factory.AppFactory {
@@ -45,4 +47,8 @@ func (c *cliFactory) CreateBase64Decryptor() (crypt.Decryptor, error) {
 
 func (c *cliFactory) CreateFileProvider() (fileprovider.FileProvider, error) {
 	return directory.NewDirectoryFileProvider(), nil
+}
+
+func (c *cliFactory) CreateGitChangesProvider() (git.ChangesProvider, error) {
+	return gitadapter.NewGitChangesProvider(), nil
 }
