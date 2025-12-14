@@ -17,7 +17,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const explanationModel = "gpt-5-nano"
+const explanationModel = openai.ChatModelGPT5Nano
 
 var ErrTooManyAttempts = errors.New("too many attempts")
 var ErrFailedToProcessFiles = errors.New("failed to process files")
