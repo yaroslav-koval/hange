@@ -1,4 +1,4 @@
-package openaiagent
+package explain
 
 import (
 	"bytes"
@@ -13,6 +13,7 @@ import (
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
+	"github.com/yaroslav-koval/hange/pkg/agent"
 	"github.com/yaroslav-koval/hange/pkg/entities"
 	"golang.org/x/sync/errgroup"
 )
@@ -22,7 +23,7 @@ const explanationModel = openai.ChatModelGPT5Nano
 var ErrTooManyAttempts = errors.New("too many attempts")
 var ErrFailedToProcessFiles = errors.New("failed to process files")
 
-func newExplainProcessor(client *openai.Client) ExplainProcessor {
+func NewOpenAIExplainProcessor(client *openai.Client) agent.ExplainProcessor {
 	return &explainProcessor{
 		client: client,
 		mutex:  &sync.RWMutex{},
@@ -68,7 +69,7 @@ type explainProcessor struct {
 	mutex       *sync.RWMutex
 }
 
-func (ep *explainProcessor) UploadFiles(ctx context.Context, files <-chan entities.File) error {
+func (ep *explainProcessor) ProcessFiles(ctx context.Context, files <-chan entities.File) error {
 	if err := ep.uploadFiles(ctx, files); err != nil {
 		return err
 	}

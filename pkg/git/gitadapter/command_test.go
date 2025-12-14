@@ -1,67 +1,61 @@
 package gitadapter
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	commandexecutor_mock "github.com/yaroslav-koval/hange/mocks/commandexecutor"
 )
 
 func TestGitChangesCommandExecutor(t *testing.T) {
 	t.Parallel()
 
-	t.Run("status success", func(t *testing.T) {
+	t.Run("argument substitution", func(t *testing.T) {
 		t.Parallel()
 
-		cem := newCommandExecutorMock(t)
-		defer cem.AssertCalled()
+		cem := commandexecutor_mock.NewMockCommandExecutor(t)
 
 		ce := &gitChangesProvider{
 			commandExecutor: cem,
 		}
 
-		cem.Expect(statusCommand, "resp", nil)
+		cem.EXPECT().Output(mock.Anything, "git", []string{
+			"--no-pager",
+			"diff",
+			"--staged",
+			"--no-color",
+			"--no-ext-diff",
+			"--patch",
+			"--unified=100",
+		}).Return("resp", nil)
 
-		res, err := ce.Status(t.Context())
+		res, err := ce.StagedDiff(t.Context(), 100)
 		require.NoError(t, err)
 		assert.Equal(t, "resp", res)
 	})
 
-	t.Run("stat success", func(t *testing.T) {
+	t.Run("git commit message", func(t *testing.T) {
 		t.Parallel()
 
-		cem := newCommandExecutorMock(t)
-		defer cem.AssertCalled()
+		cem := commandexecutor_mock.NewMockCommandExecutor(t)
 
 		ce := &gitChangesProvider{
 			commandExecutor: cem,
 		}
 
-		cem.Expect(stagedStatusCommand, "resp", nil)
+		cem.EXPECT().Run(mock.Anything, "git", []string{
+			"--no-pager",
+			"commit",
+			"-m",
+			"user provided message",
+		}).Return(nil)
 
-		res, err := ce.StagedStatus(t.Context())
+		err := ce.Commit(t.Context(), "user provided message")
 		require.NoError(t, err)
-		assert.Equal(t, "resp", res)
-	})
-
-	t.Run("staged diff success", func(t *testing.T) {
-		t.Parallel()
-
-		cem := newCommandExecutorMock(t)
-		defer cem.AssertCalled()
-
-		ce := &gitChangesProvider{
-			commandExecutor: cem,
-		}
-
-		cem.Expect(fmt.Sprintf(stagedDiffCommand, 10), "resp", nil)
-
-		res, err := ce.StagedDiff(t.Context(), 10)
-		require.NoError(t, err)
-		assert.Equal(t, "resp", res)
 	})
 }
 
@@ -79,7 +73,7 @@ func TestOsExecutor(t *testing.T) {
 
 		executor := &osExecutor{}
 
-		output, err := executor.Execute(t.Context(), scriptPath)
+		output, err := executor.Output(t.Context(), scriptPath)
 		require.NoError(t, err)
 		require.Equal(t, "success\n", output)
 	})
@@ -95,7 +89,7 @@ func TestOsExecutor(t *testing.T) {
 
 		executor := &osExecutor{}
 
-		output, err := executor.Execute(t.Context(), scriptPath+" first second")
+		output, err := executor.Output(t.Context(), scriptPath+" first second")
 		require.NoError(t, err)
 		require.Equal(t, "arguments: first second\n", output)
 	})
@@ -111,7 +105,7 @@ func TestOsExecutor(t *testing.T) {
 
 		executor := &osExecutor{}
 
-		_, err = executor.Execute(t.Context(), scriptPath)
+		_, err = executor.Output(t.Context(), scriptPath)
 		require.Error(t, err)
 	})
 }

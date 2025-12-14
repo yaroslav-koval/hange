@@ -11,4 +11,6 @@ type ChangesProvider interface {
 	// Second argument is a context scope. It's a number of lines outputted before and after lines with changes.
 	// Bigger number means better context, smaller number means length optimized output.
 	StagedDiff(ctx context.Context, linesAround int) (string, error)
+	// Commit commits current staged changes with provided message.
+	Commit(ctx context.Context, message string) error
 }

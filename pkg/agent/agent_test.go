@@ -1,4 +1,4 @@
-package openaiagent
+package agent
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
-func TestOpenAIUseCaseExplainFilesSuccess(t *testing.T) {
+func TestExplainFilesSuccess(t *testing.T) {
 	ep := explainprocessor_mock.NewMockExplainProcessor(t)
 
 	files := make(chan entities.File)
@@ -21,14 +21,14 @@ func TestOpenAIUseCaseExplainFilesSuccess(t *testing.T) {
 	ep.EXPECT().ExecuteExplainRequest(mock.Anything).Return("ok", nil)
 	ep.EXPECT().Cleanup(mock.Anything)
 
-	uc := &openAIUseCase{ep: ep}
+	uc := &agent{ep: ep}
 
 	result, err := uc.ExplainFiles(context.Background(), files)
 	require.NoError(t, err)
 	require.Equal(t, "ok", result)
 }
 
-func TestOpenAIUseCaseExplainFilesUploadFails(t *testing.T) {
+func TestExplainFilesUploadFails(t *testing.T) {
 	ep := explainprocessor_mock.NewMockExplainProcessor(t)
 
 	files := make(chan entities.File)
@@ -39,7 +39,7 @@ func TestOpenAIUseCaseExplainFilesUploadFails(t *testing.T) {
 	ep.EXPECT().UploadFiles(mock.Anything, mock.Anything).Return(uploadErr)
 	ep.EXPECT().Cleanup(mock.Anything)
 
-	uc := &openAIUseCase{ep: ep}
+	uc := &agent{ep: ep}
 
 	result, err := uc.ExplainFiles(context.Background(), files)
 	require.ErrorIs(t, err, uploadErr)
