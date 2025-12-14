@@ -10,7 +10,7 @@
 ![AMD size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/yaroslav-koval/hange/main/configs/badges/binary-size-amd64.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A small CLI soldier that goes hand in hand with a developer. An agentic answer for a routine tasks.
+A small CLI soldier that goes hand in hand with a developer. An agentic answer for routine tasks.
 
 ### Buzzwords 😎
 
@@ -21,7 +21,7 @@ Agent, RAG, Vector store, Goroutines, Worker Pool, Cobra CLI (MCP not adopted ye
 Shortest way to build the command is
 
 ```shell
-go install . && hange -h  
+go install . && hange version
 ```
 
 ## Techs
