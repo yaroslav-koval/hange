@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/yaroslav-koval/hange/pkg/agent/entity"
 	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
@@ -31,7 +32,7 @@ func (o *agent) ExplainFiles(ctx context.Context, files <-chan entities.File) (s
 	return o.ep.ExecuteExplainRequest(ctx)
 }
 
-func (o *agent) CreateCommitMessage(ctx context.Context, data CommitData) (string, error) {
+func (o *agent) CreateCommitMessage(ctx context.Context, data entity.CommitData) (string, error) {
 	if err := o.validateCommitParams(data); err != nil {
 		return "", err
 	}
@@ -45,7 +46,7 @@ func (o *agent) CreateCommitMessage(ctx context.Context, data CommitData) (strin
 var ErrProvidedEmptyInput = errors.New("provided empty input")
 var ErrNoStatusProvided = errors.New("either status or staged status should be provided")
 
-func (o *agent) validateCommitParams(data CommitData) error {
+func (o *agent) validateCommitParams(data entity.CommitData) error {
 	if data.Status == "" && data.StagedStatus == "" {
 		return ErrNoStatusProvided
 	}

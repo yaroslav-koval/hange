@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/yaroslav-koval/hange/pkg/envs"
 	"github.com/yaroslav-koval/hange/pkg/factory"
+	"github.com/yaroslav-koval/hange/pkg/factory/agentfactory"
 	"github.com/yaroslav-koval/hange/pkg/factory/appfactory"
 )
 
@@ -53,12 +54,15 @@ It likes to explain code, write documentation and just chat.`,
 			return err
 		}
 
-		app, err := appBuilder.BuildApp(appfactory.NewCLIFactory(cfgPath))
+		cliFactory := appfactory.NewCLIFactory(cfgPath)
+		openAIFactory := agentfactory.NewOpenAIFactory()
+
+		app, err := appBuilder.BuildApp(cliFactory, openAIFactory)
 		if err != nil {
 			return err
 		}
 
-		ctx = appToCmdContext(cmd, app)
+		ctx = appToContext(cmd.Context(), app)
 		cmd.SetContext(ctx)
 
 		return nil

@@ -67,12 +67,8 @@ func TestRootPersistentPreRunEHandlesCancellation(t *testing.T) {
 	cfgPath := filepath.Join(t.TempDir(), "config.yaml")
 
 	mockAppBuilder.EXPECT().
-		BuildApp(mock.Anything).
-		RunAndReturn(func(appFactory factory.AppFactory) (*factory.App, error) {
-			require.NotNil(t, appFactory)
-
-			return &factory.App{}, nil
-		})
+		BuildApp(mock.Anything, mock.Anything).
+		Return(&factory.App{}, nil)
 
 	appBuilder = mockAppBuilder
 
@@ -104,4 +100,8 @@ func TestRootPersistentPreRunEHandlesCancellation(t *testing.T) {
 	}, time.Second, 10*time.Millisecond)
 
 	require.ErrorIs(t, ctx.Err(), context.Canceled)
+
+	app, err := appFromContext(ctx)
+	require.NoError(t, err)
+	require.NotNil(t, app)
 }

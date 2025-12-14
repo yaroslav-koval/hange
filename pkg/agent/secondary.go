@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 
+	"github.com/yaroslav-koval/hange/pkg/agent/entity"
 	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
@@ -13,5 +14,5 @@ type ExplainProcessor interface {
 }
 
 type CommitProcessor interface {
-	GenCommitMessage(context.Context, CommitData) (string, error)
+	GenCommitMessage(context.Context, entity.CommitData) (string, error)
 }

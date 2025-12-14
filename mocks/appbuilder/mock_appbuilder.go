@@ -37,8 +37,8 @@ func (_m *MockAppBuilder) EXPECT() *MockAppBuilder_Expecter {
 }
 
 // BuildApp provides a mock function for the type MockAppBuilder
-func (_mock *MockAppBuilder) BuildApp(appFactory factory.AppFactory) (*factory.App, error) {
-	ret := _mock.Called(appFactory)
+func (_mock *MockAppBuilder) BuildApp(appFactory factory.AppFactory, agentFactory factory.AgentFactory) (*factory.App, error) {
+	ret := _mock.Called(appFactory, agentFactory)
 
 	if len(ret) == 0 {
 		panic("no return value specified for BuildApp")
@@ -46,18 +46,18 @@ func (_mock *MockAppBuilder) BuildApp(appFactory factory.AppFactory) (*factory.A
 
 	var r0 *factory.App
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(factory.AppFactory) (*factory.App, error)); ok {
-		return returnFunc(appFactory)
+	if returnFunc, ok := ret.Get(0).(func(factory.AppFactory, factory.AgentFactory) (*factory.App, error)); ok {
+		return returnFunc(appFactory, agentFactory)
 	}
-	if returnFunc, ok := ret.Get(0).(func(factory.AppFactory) *factory.App); ok {
-		r0 = returnFunc(appFactory)
+	if returnFunc, ok := ret.Get(0).(func(factory.AppFactory, factory.AgentFactory) *factory.App); ok {
+		r0 = returnFunc(appFactory, agentFactory)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*factory.App)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(factory.AppFactory) error); ok {
-		r1 = returnFunc(appFactory)
+	if returnFunc, ok := ret.Get(1).(func(factory.AppFactory, factory.AgentFactory) error); ok {
+		r1 = returnFunc(appFactory, agentFactory)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -71,18 +71,24 @@ type MockAppBuilder_BuildApp_Call struct {
 
 // BuildApp is a helper method to define mock.On call
 //   - appFactory factory.AppFactory
-func (_e *MockAppBuilder_Expecter) BuildApp(appFactory interface{}) *MockAppBuilder_BuildApp_Call {
-	return &MockAppBuilder_BuildApp_Call{Call: _e.mock.On("BuildApp", appFactory)}
+//   - agentFactory factory.AgentFactory
+func (_e *MockAppBuilder_Expecter) BuildApp(appFactory interface{}, agentFactory interface{}) *MockAppBuilder_BuildApp_Call {
+	return &MockAppBuilder_BuildApp_Call{Call: _e.mock.On("BuildApp", appFactory, agentFactory)}
 }
 
-func (_c *MockAppBuilder_BuildApp_Call) Run(run func(appFactory factory.AppFactory)) *MockAppBuilder_BuildApp_Call {
+func (_c *MockAppBuilder_BuildApp_Call) Run(run func(appFactory factory.AppFactory, agentFactory factory.AgentFactory)) *MockAppBuilder_BuildApp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 factory.AppFactory
 		if args[0] != nil {
 			arg0 = args[0].(factory.AppFactory)
 		}
+		var arg1 factory.AgentFactory
+		if args[1] != nil {
+			arg1 = args[1].(factory.AgentFactory)
+		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -93,7 +99,7 @@ func (_c *MockAppBuilder_BuildApp_Call) Return(app *factory.App, err error) *Moc
 	return _c
 }
 
-func (_c *MockAppBuilder_BuildApp_Call) RunAndReturn(run func(appFactory factory.AppFactory) (*factory.App, error)) *MockAppBuilder_BuildApp_Call {
+func (_c *MockAppBuilder_BuildApp_Call) RunAndReturn(run func(appFactory factory.AppFactory, agentFactory factory.AgentFactory) (*factory.App, error)) *MockAppBuilder_BuildApp_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,4 +1,4 @@
-package agent
+package entity
 
 type CommitData struct {
 	// UserInput is a text helpful for LLM to understand context, like task description. Can be empty.

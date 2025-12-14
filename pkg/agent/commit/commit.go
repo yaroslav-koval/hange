@@ -8,21 +8,22 @@ import (
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
 	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/pkg/agent/entity"
 )
 
 func NewOpenAICommitProcessor(client *openai.Client) agent.CommitProcessor {
-	return &commitProcessor{
+	return &openAICommitProcessor{
 		client: client,
 	}
 }
 
 const commitModel = openai.ChatModelGPT5Nano
 
-type commitProcessor struct {
+type openAICommitProcessor struct {
 	client *openai.Client
 }
 
-func (cp *commitProcessor) GenCommitMessage(ctx context.Context, data agent.CommitData) (string, error) {
+func (cp *openAICommitProcessor) GenCommitMessage(ctx context.Context, data entity.CommitData) (string, error) {
 	resp, err := cp.client.Responses.New(ctx, responses.ResponseNewParams{
 		Instructions: openai.String(systemInstruction),
 		Include: []responses.ResponseIncludable{
@@ -31,7 +32,8 @@ func (cp *commitProcessor) GenCommitMessage(ctx context.Context, data agent.Comm
 		Input: responses.ResponseNewParamsInputUnion{
 			OfString: openai.String(cp.buildInput(data)),
 		},
-		Model: commitModel,
+		Model:           commitModel,
+		MaxOutputTokens: openai.Int(80),
 	})
 	if err != nil {
 		return "", err
@@ -49,7 +51,7 @@ Hard requirements:
 - Keep it short and specific (aim <= 72 chars).
 - Summarize the net change across ALL files (what + why), using the diff and reason.`
 
-func (cp *commitProcessor) buildInput(data agent.CommitData) string {
+func (cp *openAICommitProcessor) buildInput(data entity.CommitData) string {
 	b := strings.Builder{}
 
 	if data.UserInput != "" {

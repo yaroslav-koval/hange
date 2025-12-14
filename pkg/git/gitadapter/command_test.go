@@ -89,7 +89,7 @@ func TestOsExecutor(t *testing.T) {
 
 		executor := &osExecutor{}
 
-		output, err := executor.Output(t.Context(), scriptPath+" first second")
+		output, err := executor.Output(t.Context(), scriptPath, "first", "second")
 		require.NoError(t, err)
 		require.Equal(t, "arguments: first second\n", output)
 	})

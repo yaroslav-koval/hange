@@ -8,6 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
+	"github.com/yaroslav-koval/hange/pkg/agent/entity"
 	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
@@ -38,9 +39,75 @@ func (_m *MockAIAgent) EXPECT() *MockAIAgent_Expecter {
 	return &MockAIAgent_Expecter{mock: &_m.Mock}
 }
 
+// CreateCommitMessage provides a mock function for the type MockAIAgent
+func (_mock *MockAIAgent) CreateCommitMessage(context1 context.Context, commitData entity.CommitData) (string, error) {
+	ret := _mock.Called(context1, commitData)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateCommitMessage")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, entity.CommitData) (string, error)); ok {
+		return returnFunc(context1, commitData)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, entity.CommitData) string); ok {
+		r0 = returnFunc(context1, commitData)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, entity.CommitData) error); ok {
+		r1 = returnFunc(context1, commitData)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAIAgent_CreateCommitMessage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateCommitMessage'
+type MockAIAgent_CreateCommitMessage_Call struct {
+	*mock.Call
+}
+
+// CreateCommitMessage is a helper method to define mock.On call
+//   - context1 context.Context
+//   - commitData agent.CommitData
+func (_e *MockAIAgent_Expecter) CreateCommitMessage(context1 interface{}, commitData interface{}) *MockAIAgent_CreateCommitMessage_Call {
+	return &MockAIAgent_CreateCommitMessage_Call{Call: _e.mock.On("CreateCommitMessage", context1, commitData)}
+}
+
+func (_c *MockAIAgent_CreateCommitMessage_Call) Run(run func(context1 context.Context, commitData entity.CommitData)) *MockAIAgent_CreateCommitMessage_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 entity.CommitData
+		if args[1] != nil {
+			arg1 = args[1].(entity.CommitData)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAIAgent_CreateCommitMessage_Call) Return(s string, err error) *MockAIAgent_CreateCommitMessage_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockAIAgent_CreateCommitMessage_Call) RunAndReturn(run func(context1 context.Context, commitData entity.CommitData) (string, error)) *MockAIAgent_CreateCommitMessage_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ExplainFiles provides a mock function for the type MockAIAgent
-func (_mock *MockAIAgent) ExplainFiles(ctx context.Context, files <-chan entities.File) (string, error) {
-	ret := _mock.Called(ctx, files)
+func (_mock *MockAIAgent) ExplainFiles(context1 context.Context, fileCh <-chan entities.File) (string, error) {
+	ret := _mock.Called(context1, fileCh)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ExplainFiles")
@@ -49,15 +116,15 @@ func (_mock *MockAIAgent) ExplainFiles(ctx context.Context, files <-chan entitie
 	var r0 string
 	var r1 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan entities.File) (string, error)); ok {
-		return returnFunc(ctx, files)
+		return returnFunc(context1, fileCh)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan entities.File) string); ok {
-		r0 = returnFunc(ctx, files)
+		r0 = returnFunc(context1, fileCh)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, <-chan entities.File) error); ok {
-		r1 = returnFunc(ctx, files)
+		r1 = returnFunc(context1, fileCh)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -70,13 +137,13 @@ type MockAIAgent_ExplainFiles_Call struct {
 }
 
 // ExplainFiles is a helper method to define mock.On call
-//   - ctx context.Context
-//   - files <-chan entities.File
-func (_e *MockAIAgent_Expecter) ExplainFiles(ctx interface{}, files interface{}) *MockAIAgent_ExplainFiles_Call {
-	return &MockAIAgent_ExplainFiles_Call{Call: _e.mock.On("ExplainFiles", ctx, files)}
+//   - context1 context.Context
+//   - fileCh <-chan entities.File
+func (_e *MockAIAgent_Expecter) ExplainFiles(context1 interface{}, fileCh interface{}) *MockAIAgent_ExplainFiles_Call {
+	return &MockAIAgent_ExplainFiles_Call{Call: _e.mock.On("ExplainFiles", context1, fileCh)}
 }
 
-func (_c *MockAIAgent_ExplainFiles_Call) Run(run func(ctx context.Context, files <-chan entities.File)) *MockAIAgent_ExplainFiles_Call {
+func (_c *MockAIAgent_ExplainFiles_Call) Run(run func(context1 context.Context, fileCh <-chan entities.File)) *MockAIAgent_ExplainFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -99,7 +166,7 @@ func (_c *MockAIAgent_ExplainFiles_Call) Return(s string, err error) *MockAIAgen
 	return _c
 }
 
-func (_c *MockAIAgent_ExplainFiles_Call) RunAndReturn(run func(ctx context.Context, files <-chan entities.File) (string, error)) *MockAIAgent_ExplainFiles_Call {
+func (_c *MockAIAgent_ExplainFiles_Call) RunAndReturn(run func(context1 context.Context, fileCh <-chan entities.File) (string, error)) *MockAIAgent_ExplainFiles_Call {
 	_c.Call.Return(run)
 	return _c
 }

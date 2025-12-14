@@ -10,6 +10,7 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/config"
 	"github.com/yaroslav-koval/hange/pkg/crypt"
 	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/pkg/git"
 )
 
 // NewMockAppFactory creates a new instance of MockAppFactory. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -255,6 +256,61 @@ func (_c *MockAppFactory_CreateFileProvider_Call) Return(fileProvider fileprovid
 }
 
 func (_c *MockAppFactory_CreateFileProvider_Call) RunAndReturn(run func() (fileprovider.FileProvider, error)) *MockAppFactory_CreateFileProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateGitChangesProvider provides a mock function for the type MockAppFactory
+func (_mock *MockAppFactory) CreateGitChangesProvider() (git.ChangesProvider, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateGitChangesProvider")
+	}
+
+	var r0 git.ChangesProvider
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (git.ChangesProvider, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() git.ChangesProvider); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(git.ChangesProvider)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppFactory_CreateGitChangesProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateGitChangesProvider'
+type MockAppFactory_CreateGitChangesProvider_Call struct {
+	*mock.Call
+}
+
+// CreateGitChangesProvider is a helper method to define mock.On call
+func (_e *MockAppFactory_Expecter) CreateGitChangesProvider() *MockAppFactory_CreateGitChangesProvider_Call {
+	return &MockAppFactory_CreateGitChangesProvider_Call{Call: _e.mock.On("CreateGitChangesProvider")}
+}
+
+func (_c *MockAppFactory_CreateGitChangesProvider_Call) Run(run func()) *MockAppFactory_CreateGitChangesProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppFactory_CreateGitChangesProvider_Call) Return(changesProvider git.ChangesProvider, err error) *MockAppFactory_CreateGitChangesProvider_Call {
+	_c.Call.Return(changesProvider, err)
+	return _c
+}
+
+func (_c *MockAppFactory_CreateGitChangesProvider_Call) RunAndReturn(run func() (git.ChangesProvider, error)) *MockAppFactory_CreateGitChangesProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }

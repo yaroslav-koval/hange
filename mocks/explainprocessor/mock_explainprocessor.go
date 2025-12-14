@@ -39,8 +39,8 @@ func (_m *MockExplainProcessor) EXPECT() *MockExplainProcessor_Expecter {
 }
 
 // Cleanup provides a mock function for the type MockExplainProcessor
-func (_mock *MockExplainProcessor) Cleanup(ctx context.Context) {
-	_mock.Called(ctx)
+func (_mock *MockExplainProcessor) Cleanup(context1 context.Context) {
+	_mock.Called(context1)
 	return
 }
 
@@ -50,12 +50,12 @@ type MockExplainProcessor_Cleanup_Call struct {
 }
 
 // Cleanup is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockExplainProcessor_Expecter) Cleanup(ctx interface{}) *MockExplainProcessor_Cleanup_Call {
-	return &MockExplainProcessor_Cleanup_Call{Call: _e.mock.On("Cleanup", ctx)}
+//   - context1 context.Context
+func (_e *MockExplainProcessor_Expecter) Cleanup(context1 interface{}) *MockExplainProcessor_Cleanup_Call {
+	return &MockExplainProcessor_Cleanup_Call{Call: _e.mock.On("Cleanup", context1)}
 }
 
-func (_c *MockExplainProcessor_Cleanup_Call) Run(run func(ctx context.Context)) *MockExplainProcessor_Cleanup_Call {
+func (_c *MockExplainProcessor_Cleanup_Call) Run(run func(context1 context.Context)) *MockExplainProcessor_Cleanup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -73,14 +73,14 @@ func (_c *MockExplainProcessor_Cleanup_Call) Return() *MockExplainProcessor_Clea
 	return _c
 }
 
-func (_c *MockExplainProcessor_Cleanup_Call) RunAndReturn(run func(ctx context.Context)) *MockExplainProcessor_Cleanup_Call {
+func (_c *MockExplainProcessor_Cleanup_Call) RunAndReturn(run func(context1 context.Context)) *MockExplainProcessor_Cleanup_Call {
 	_c.Run(run)
 	return _c
 }
 
 // ExecuteExplainRequest provides a mock function for the type MockExplainProcessor
-func (_mock *MockExplainProcessor) ExecuteExplainRequest(ctx context.Context) (string, error) {
-	ret := _mock.Called(ctx)
+func (_mock *MockExplainProcessor) ExecuteExplainRequest(context1 context.Context) (string, error) {
+	ret := _mock.Called(context1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ExecuteExplainRequest")
@@ -89,15 +89,15 @@ func (_mock *MockExplainProcessor) ExecuteExplainRequest(ctx context.Context) (s
 	var r0 string
 	var r1 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context) (string, error)); ok {
-		return returnFunc(ctx)
+		return returnFunc(context1)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context) string); ok {
-		r0 = returnFunc(ctx)
+		r0 = returnFunc(context1)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = returnFunc(ctx)
+		r1 = returnFunc(context1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -110,12 +110,12 @@ type MockExplainProcessor_ExecuteExplainRequest_Call struct {
 }
 
 // ExecuteExplainRequest is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockExplainProcessor_Expecter) ExecuteExplainRequest(ctx interface{}) *MockExplainProcessor_ExecuteExplainRequest_Call {
-	return &MockExplainProcessor_ExecuteExplainRequest_Call{Call: _e.mock.On("ExecuteExplainRequest", ctx)}
+//   - context1 context.Context
+func (_e *MockExplainProcessor_Expecter) ExecuteExplainRequest(context1 interface{}) *MockExplainProcessor_ExecuteExplainRequest_Call {
+	return &MockExplainProcessor_ExecuteExplainRequest_Call{Call: _e.mock.On("ExecuteExplainRequest", context1)}
 }
 
-func (_c *MockExplainProcessor_ExecuteExplainRequest_Call) Run(run func(ctx context.Context)) *MockExplainProcessor_ExecuteExplainRequest_Call {
+func (_c *MockExplainProcessor_ExecuteExplainRequest_Call) Run(run func(context1 context.Context)) *MockExplainProcessor_ExecuteExplainRequest_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -133,41 +133,41 @@ func (_c *MockExplainProcessor_ExecuteExplainRequest_Call) Return(s string, err 
 	return _c
 }
 
-func (_c *MockExplainProcessor_ExecuteExplainRequest_Call) RunAndReturn(run func(ctx context.Context) (string, error)) *MockExplainProcessor_ExecuteExplainRequest_Call {
+func (_c *MockExplainProcessor_ExecuteExplainRequest_Call) RunAndReturn(run func(context1 context.Context) (string, error)) *MockExplainProcessor_ExecuteExplainRequest_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// UploadFiles provides a mock function for the type MockExplainProcessor
-func (_mock *MockExplainProcessor) UploadFiles(ctx context.Context, files <-chan entities.File) error {
-	ret := _mock.Called(ctx, files)
+// ProcessFiles provides a mock function for the type MockExplainProcessor
+func (_mock *MockExplainProcessor) ProcessFiles(context1 context.Context, fileCh <-chan entities.File) error {
+	ret := _mock.Called(context1, fileCh)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UploadFiles")
+		panic("no return value specified for ProcessFiles")
 	}
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, <-chan entities.File) error); ok {
-		r0 = returnFunc(ctx, files)
+		r0 = returnFunc(context1, fileCh)
 	} else {
 		r0 = ret.Error(0)
 	}
 	return r0
 }
 
-// MockExplainProcessor_UploadFiles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UploadFiles'
-type MockExplainProcessor_UploadFiles_Call struct {
+// MockExplainProcessor_ProcessFiles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ProcessFiles'
+type MockExplainProcessor_ProcessFiles_Call struct {
 	*mock.Call
 }
 
-// UploadFiles is a helper method to define mock.On call
-//   - ctx context.Context
-//   - files <-chan entities.File
-func (_e *MockExplainProcessor_Expecter) UploadFiles(ctx interface{}, files interface{}) *MockExplainProcessor_UploadFiles_Call {
-	return &MockExplainProcessor_UploadFiles_Call{Call: _e.mock.On("UploadFiles", ctx, files)}
+// ProcessFiles is a helper method to define mock.On call
+//   - context1 context.Context
+//   - fileCh <-chan entities.File
+func (_e *MockExplainProcessor_Expecter) ProcessFiles(context1 interface{}, fileCh interface{}) *MockExplainProcessor_ProcessFiles_Call {
+	return &MockExplainProcessor_ProcessFiles_Call{Call: _e.mock.On("ProcessFiles", context1, fileCh)}
 }
 
-func (_c *MockExplainProcessor_UploadFiles_Call) Run(run func(ctx context.Context, files <-chan entities.File)) *MockExplainProcessor_UploadFiles_Call {
+func (_c *MockExplainProcessor_ProcessFiles_Call) Run(run func(context1 context.Context, fileCh <-chan entities.File)) *MockExplainProcessor_ProcessFiles_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -185,12 +185,12 @@ func (_c *MockExplainProcessor_UploadFiles_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockExplainProcessor_UploadFiles_Call) Return(err error) *MockExplainProcessor_UploadFiles_Call {
+func (_c *MockExplainProcessor_ProcessFiles_Call) Return(err error) *MockExplainProcessor_ProcessFiles_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockExplainProcessor_UploadFiles_Call) RunAndReturn(run func(ctx context.Context, files <-chan entities.File) error) *MockExplainProcessor_UploadFiles_Call {
+func (_c *MockExplainProcessor_ProcessFiles_Call) RunAndReturn(run func(context1 context.Context, fileCh <-chan entities.File) error) *MockExplainProcessor_ProcessFiles_Call {
 	_c.Call.Return(run)
 	return _c
 }

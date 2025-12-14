@@ -16,7 +16,10 @@ var explainCmd = &cobra.Command{
 	Long:    `Explain file(s) or directory(ies) from the engineer's perspective.`,
 	Example: `hange explain file1 file2 directory`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		app := appFromCmdContext(cmd)
+		app, err := appFromContext(cmd.Context())
+		if err != nil {
+			return err
+		}
 
 		ep := &explainCmdProcessor{
 			app: app,
