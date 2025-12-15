@@ -16,6 +16,16 @@ A small CLI soldier that goes hand in hand with a developer. An agentic answer f
 
 Agent, RAG, Vector store, Goroutines, Worker Pool, Cobra CLI (MCP not adopted yet 😔)
 
+## Quickstart
+
+```shell
+go install . && hange -h        # install locally
+echo "sk-..." | hange auth      # save your OpenAI API key (stdin or arg)
+hange explain README.md cmd     # explain files or folders
+hange commit-msg "ctx"          # generate a commit message for staged changes
+# hange commit "ctx"            # same as above, but also runs git commit
+```
+
 ## Development
 
 Shortest way to build the command is
@@ -35,7 +45,7 @@ Hange can be installed by 2 ways:
 
 1. Install it from GitHub repository by specific tag
     ```shell
-    go install github.com/yaroslav-koval/hange
+    go install github.com/yaroslav-koval/hange@latest
     ```
 2. Clone this repo locally and install using
    ```shell
@@ -48,19 +58,26 @@ Hange can be installed by 2 ways:
 * git (binary)
 * go 1.25+ (only for installation by Go commands. Not needed if downloaded from a GitHub release)
 
+## Config
+
+* Default config file: `~/.hange` (YAML). Override with `--config` flag or env `HANGE_CONFIG_PATH`.
+* Values can also come from env vars with prefix `HANGE_`, e.g. `HANGE_AUTH_OPENAI_TOKEN`.
+* The OpenAI token is stored at `auth.openai.token`, base64-encoded (not strong encryption).
+* A config file is created automatically if missing.
+
 ## Project structure
 
-Despite this is CLI project, it's created in platform-agnostic way, so modules can be used in other scenarios, like
-HTTP, etc.
+* `main.go` boots the Cobra CLI and embeds `config.yaml` for version output.
+* `cmd/` contains Cobra commands (`auth`, `explain`, `commit[-msg]`, `version`) with minimal wiring only.
+* `pkg/agent` holds LLM-facing processors: commit message generation and file explanation (OpenAI Responses + vector store upload).
+* `pkg/auth` manages storing/fetching the OpenAI token via adapters over config.
+* `pkg/config` wraps Viper for CLI config handling; `pkg/consts` keeps shared constants.
+* `pkg/factory` wires app + agent dependencies; `pkg/fileprovider/directory` streams files/dirs; `pkg/git/gitadapter` shells out to git.
+* `mocks/` stores generated interfaces; `configs/badges/` holds badge data.
 
-Some of the modules, like [auth](pkg/auth) contains business logic that is implemented by adapters. Adapters resides
-near the main folder, so the structure looks like:
+## Adapters pattern
 
-* `auth` - contains business logic and interface declarations of both types: driver and driven. Here resides declaration
-  and
-  implementation for a driver interface(s).
-* `auth/adapter1` - implements one of driven interfaces
-* `auth/adapter2` - implements another driven interface
+Packages keep core interfaces at the root and place concrete adapters in nested folders. Example: `pkg/agent` defines the primary `AIAgent` along with secondary interfaces (`CommitProcessor`, `ExplainProcessor`); the OpenAI-backed implementations live in `pkg/agent/commit` and `pkg/agent/explain`, and factories pick the adapter at runtime. This keeps the core logic reusable while swapping integrations per environment.
 
 ## Tests
 
