@@ -1,0 +1,53 @@
+name: Update CLI Docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-cli-docs
+  cancel-in-progress: true
+
+jobs:
+  cli-docs:
+    runs-on: ubuntu-latest
+    environment: docs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Prepare main branch
+        run: |
+          git fetch origin main
+          git switch main
+
+      - name: Generate CLI docs
+        run: make gen-cli-docs
+
+      - name: Publish CLI docs to main branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add docs/commands
+
+          if git diff --cached --quiet; then
+            echo "CLI docs already up to date after running make gen-cli-docs." | tee -a "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+
+          git commit -m "Update CLI docs [no ci]"
+          git push origin main
