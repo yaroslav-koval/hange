@@ -81,6 +81,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringP(flagKeyConfigPath, "", os.Getenv(envs.EnvHangeConfigPath), "config file (default is $HOME/.hange.yaml)")
+	rootCmd.PersistentFlags().String(flagKeyConfigPath, os.Getenv(envs.EnvHangeConfigPath), "config file (default is $HOME/.hange.yaml)")
 	rootCmd.PersistentFlags().BoolP(flagKeyVerbose, "v", false, "verbose logging")
 }
