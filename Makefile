@@ -2,6 +2,10 @@
 gen-mocks:
 	mockery --config configs/.mockery.yml
 
+.PHONY:gen-cli-docs
+gen-cli-docs:
+	go run docs/commands/main.go -docs-dir docs/commands
+
 .PHONY:gen-mocks
 build-and-check:
 	go install .

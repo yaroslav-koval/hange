@@ -80,6 +80,12 @@ func Execute() {
 	}
 }
 
+func GetRootCmd() *cobra.Command {
+	appBuilder = factory.NewAppBuilder()
+
+	return rootCmd
+}
+
 func init() {
 	rootCmd.PersistentFlags().String(flagKeyConfigPath, os.Getenv(envs.EnvHangeConfigPath), "config file (default is $HOME/.hange.yaml)")
 	rootCmd.PersistentFlags().BoolP(flagKeyVerbose, "v", false, "verbose logging")
