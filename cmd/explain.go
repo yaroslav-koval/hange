@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/yaroslav-koval/hange/pkg/factory"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -74,10 +75,15 @@ func (ep *explainCmdProcessor) validateArgs(args []string) error {
 func (ep *explainCmdProcessor) processExplanation(ctx context.Context, args []string) (string, error) {
 	eg, ctx := errgroup.WithContext(ctx)
 
-	filesCh, doneCh, err := ep.app.FileProvider.ReadFiles(ctx, args)
+	fileNames, err := ep.app.FileProvider.GetAllFileNames(ctx, args)
 	if err != nil {
 		return "", err
 	}
+
+	filesCh, doneCh := ep.app.FileProvider.ReadFiles(ctx, fileprovider.Config{
+		Workers:    3, // TODO take from config
+		BufferSize: 3 * 2,
+	}, fileNames)
 
 	eg.Go(func() error {
 		return <-doneCh

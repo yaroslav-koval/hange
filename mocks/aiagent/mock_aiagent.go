@@ -72,7 +72,7 @@ type MockAIAgent_CreateCommitMessage_Call struct {
 
 // CreateCommitMessage is a helper method to define mock.On call
 //   - context1 context.Context
-//   - commitData agent.CommitData
+//   - commitData entity.CommitData
 func (_e *MockAIAgent_Expecter) CreateCommitMessage(context1 interface{}, commitData interface{}) *MockAIAgent_CreateCommitMessage_Call {
 	return &MockAIAgent_CreateCommitMessage_Call{Call: _e.mock.On("CreateCommitMessage", context1, commitData)}
 }

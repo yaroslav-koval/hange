@@ -10,7 +10,9 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/crypt/base64"
 	"github.com/yaroslav-koval/hange/pkg/factory"
 	"github.com/yaroslav-koval/hange/pkg/fileprovider"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider/directory"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider/errmapper"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider/filecontentprovider"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider/filenamesprovider"
 	"github.com/yaroslav-koval/hange/pkg/git"
 	"github.com/yaroslav-koval/hange/pkg/git/gitadapter"
 )
@@ -46,7 +48,12 @@ func (c *cliFactory) CreateBase64Decryptor() (crypt.Decryptor, error) {
 }
 
 func (c *cliFactory) CreateFileProvider() (fileprovider.FileProvider, error) {
-	return directory.NewDirectoryFileProvider(), nil
+	errMapper := errmapper.NewOSFileErrMapper()
+
+	fnp := filenamesprovider.NewOSFileNamesProvider(errMapper)
+	fcp := filecontentprovider.NewOSFileContentProvider(errMapper)
+
+	return fileprovider.NewFileProvider(fnp, fcp), nil
 }
 
 func (c *cliFactory) CreateGitChangesProvider() (git.ChangesProvider, error) {

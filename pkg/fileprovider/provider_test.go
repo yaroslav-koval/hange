@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	filecontentprovider_mock "github.com/yaroslav-koval/hange/mocks/filecontentprovider"
+	filenamesprovider_mock "github.com/yaroslav-koval/hange/mocks/filenamesprovider"
 	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
@@ -26,9 +27,12 @@ func TestFileProvider_ReadFilesSuccess(t *testing.T) {
 	fcProvider.EXPECT().GetFileContent(mock.Anything, "a.txt").Return(content["a.txt"], nil).Once()
 	fcProvider.EXPECT().GetFileContent(mock.Anything, "b.txt").Return(content["b.txt"], nil).Once()
 
-	fp := NewFileProvider(Config{Workers: 2, BufferSize: 4}, fcProvider)
+	fp := NewFileProvider(
+		filenamesprovider_mock.NewMockFileNamesProvider(t),
+		fcProvider,
+	)
 
-	filesCh, doneCh := fp.ReadFiles(context.Background(), names)
+	filesCh, doneCh := fp.ReadFiles(context.Background(), Config{Workers: 2, BufferSize: 4}, names)
 
 	got := make(map[string][]byte)
 	for f := range filesCh {
@@ -50,9 +54,12 @@ func TestFileProvider_ReadFiles_ContentError(t *testing.T) {
 	fcProvider := filecontentprovider_mock.NewMockFileContentProvider(t)
 	fcProvider.EXPECT().GetFileContent(mock.Anything, filePath).Return(nil, expectedErr)
 
-	fp := NewFileProvider(Config{Workers: 1, BufferSize: 2}, fcProvider)
+	fp := NewFileProvider(
+		filenamesprovider_mock.NewMockFileNamesProvider(t),
+		fcProvider,
+	)
 
-	filesCh, doneCh := fp.ReadFiles(context.Background(), []string{filePath})
+	filesCh, doneCh := fp.ReadFiles(context.Background(), Config{Workers: 1, BufferSize: 2}, []string{filePath})
 
 	var files []entities.File
 	for f := range filesCh {
@@ -77,10 +84,13 @@ func TestFileProvider_ReadFilesCancelledContext(t *testing.T) {
 			return nil, ctx.Err()
 		})
 
-	fp := NewFileProvider(Config{Workers: 1, BufferSize: 1}, fcProvider)
+	fp := NewFileProvider(
+		filenamesprovider_mock.NewMockFileNamesProvider(t),
+		fcProvider,
+	)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	filesCh, doneCh := fp.ReadFiles(ctx, []string{"file.txt"})
+	filesCh, doneCh := fp.ReadFiles(ctx, Config{Workers: 1, BufferSize: 1}, []string{"file.txt"})
 
 	<-started
 	cancel()
@@ -101,9 +111,12 @@ func TestFileProvider_ReadFilesCancelledContext(t *testing.T) {
 func TestFileProvider_ReadFilesEmpty(t *testing.T) {
 	t.Parallel()
 
-	fp := NewFileProvider(Config{Workers: 1, BufferSize: 1}, filecontentprovider_mock.NewMockFileContentProvider(t))
+	fp := NewFileProvider(
+		filenamesprovider_mock.NewMockFileNamesProvider(t),
+		filecontentprovider_mock.NewMockFileContentProvider(t),
+	)
 
-	filesCh, doneCh := fp.ReadFiles(context.Background(), []string{})
+	filesCh, doneCh := fp.ReadFiles(context.Background(), Config{Workers: 1, BufferSize: 1}, []string{})
 
 	_, ok := <-filesCh
 	assert.False(t, ok, "files channel should close immediately for no paths")

@@ -9,6 +9,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 	"github.com/yaroslav-koval/hange/pkg/entities"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 )
 
 // NewMockFileProvider creates a new instance of MockFileProvider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -38,55 +39,47 @@ func (_m *MockFileProvider) EXPECT() *MockFileProvider_Expecter {
 	return &MockFileProvider_Expecter{mock: &_m.Mock}
 }
 
-// ReadFiles provides a mock function for the type MockFileProvider
-func (_mock *MockFileProvider) ReadFiles(context1 context.Context, strings []string) (<-chan entities.File, <-chan error, error) {
+// GetAllFileNames provides a mock function for the type MockFileProvider
+func (_mock *MockFileProvider) GetAllFileNames(context1 context.Context, strings []string) ([]string, error) {
 	ret := _mock.Called(context1, strings)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ReadFiles")
+		panic("no return value specified for GetAllFileNames")
 	}
 
-	var r0 <-chan entities.File
-	var r1 <-chan error
-	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) (<-chan entities.File, <-chan error, error)); ok {
+	var r0 []string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) ([]string, error)); ok {
 		return returnFunc(context1, strings)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) <-chan entities.File); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) []string); ok {
 		r0 = returnFunc(context1, strings)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan entities.File)
+			r0 = ret.Get(0).([]string)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, []string) <-chan error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, []string) error); ok {
 		r1 = returnFunc(context1, strings)
 	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(<-chan error)
-		}
+		r1 = ret.Error(1)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, []string) error); ok {
-		r2 = returnFunc(context1, strings)
-	} else {
-		r2 = ret.Error(2)
-	}
-	return r0, r1, r2
+	return r0, r1
 }
 
-// MockFileProvider_ReadFiles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadFiles'
-type MockFileProvider_ReadFiles_Call struct {
+// MockFileProvider_GetAllFileNames_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllFileNames'
+type MockFileProvider_GetAllFileNames_Call struct {
 	*mock.Call
 }
 
-// ReadFiles is a helper method to define mock.On call
+// GetAllFileNames is a helper method to define mock.On call
 //   - context1 context.Context
 //   - strings []string
-func (_e *MockFileProvider_Expecter) ReadFiles(context1 interface{}, strings interface{}) *MockFileProvider_ReadFiles_Call {
-	return &MockFileProvider_ReadFiles_Call{Call: _e.mock.On("ReadFiles", context1, strings)}
+func (_e *MockFileProvider_Expecter) GetAllFileNames(context1 interface{}, strings interface{}) *MockFileProvider_GetAllFileNames_Call {
+	return &MockFileProvider_GetAllFileNames_Call{Call: _e.mock.On("GetAllFileNames", context1, strings)}
 }
 
-func (_c *MockFileProvider_ReadFiles_Call) Run(run func(context1 context.Context, strings []string)) *MockFileProvider_ReadFiles_Call {
+func (_c *MockFileProvider_GetAllFileNames_Call) Run(run func(context1 context.Context, strings []string)) *MockFileProvider_GetAllFileNames_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -104,12 +97,88 @@ func (_c *MockFileProvider_ReadFiles_Call) Run(run func(context1 context.Context
 	return _c
 }
 
-func (_c *MockFileProvider_ReadFiles_Call) Return(fileCh <-chan entities.File, errCh <-chan error, err error) *MockFileProvider_ReadFiles_Call {
-	_c.Call.Return(fileCh, errCh, err)
+func (_c *MockFileProvider_GetAllFileNames_Call) Return(strings1 []string, err error) *MockFileProvider_GetAllFileNames_Call {
+	_c.Call.Return(strings1, err)
 	return _c
 }
 
-func (_c *MockFileProvider_ReadFiles_Call) RunAndReturn(run func(context1 context.Context, strings []string) (<-chan entities.File, <-chan error, error)) *MockFileProvider_ReadFiles_Call {
+func (_c *MockFileProvider_GetAllFileNames_Call) RunAndReturn(run func(context1 context.Context, strings []string) ([]string, error)) *MockFileProvider_GetAllFileNames_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ReadFiles provides a mock function for the type MockFileProvider
+func (_mock *MockFileProvider) ReadFiles(context1 context.Context, config fileprovider.Config, strings []string) (<-chan entities.File, <-chan error) {
+	ret := _mock.Called(context1, config, strings)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ReadFiles")
+	}
+
+	var r0 <-chan entities.File
+	var r1 <-chan error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, fileprovider.Config, []string) (<-chan entities.File, <-chan error)); ok {
+		return returnFunc(context1, config, strings)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, fileprovider.Config, []string) <-chan entities.File); ok {
+		r0 = returnFunc(context1, config, strings)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan entities.File)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, fileprovider.Config, []string) <-chan error); ok {
+		r1 = returnFunc(context1, config, strings)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
+	}
+	return r0, r1
+}
+
+// MockFileProvider_ReadFiles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadFiles'
+type MockFileProvider_ReadFiles_Call struct {
+	*mock.Call
+}
+
+// ReadFiles is a helper method to define mock.On call
+//   - context1 context.Context
+//   - config fileprovider.Config
+//   - strings []string
+func (_e *MockFileProvider_Expecter) ReadFiles(context1 interface{}, config interface{}, strings interface{}) *MockFileProvider_ReadFiles_Call {
+	return &MockFileProvider_ReadFiles_Call{Call: _e.mock.On("ReadFiles", context1, config, strings)}
+}
+
+func (_c *MockFileProvider_ReadFiles_Call) Run(run func(context1 context.Context, config fileprovider.Config, strings []string)) *MockFileProvider_ReadFiles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 fileprovider.Config
+		if args[1] != nil {
+			arg1 = args[1].(fileprovider.Config)
+		}
+		var arg2 []string
+		if args[2] != nil {
+			arg2 = args[2].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFileProvider_ReadFiles_Call) Return(fileCh <-chan entities.File, errCh <-chan error) *MockFileProvider_ReadFiles_Call {
+	_c.Call.Return(fileCh, errCh)
+	return _c
+}
+
+func (_c *MockFileProvider_ReadFiles_Call) RunAndReturn(run func(context1 context.Context, config fileprovider.Config, strings []string) (<-chan entities.File, <-chan error)) *MockFileProvider_ReadFiles_Call {
 	_c.Call.Return(run)
 	return _c
 }

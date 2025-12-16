@@ -71,7 +71,7 @@ type MockCommitProcessor_GenCommitMessage_Call struct {
 
 // GenCommitMessage is a helper method to define mock.On call
 //   - context1 context.Context
-//   - commitData agent.CommitData
+//   - commitData entity.CommitData
 func (_e *MockCommitProcessor_Expecter) GenCommitMessage(context1 interface{}, commitData interface{}) *MockCommitProcessor_GenCommitMessage_Call {
 	return &MockCommitProcessor_GenCommitMessage_Call{Call: _e.mock.On("GenCommitMessage", context1, commitData)}
 }
