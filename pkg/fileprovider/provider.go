@@ -8,36 +8,25 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func NewFileProvider(fnProvider FileNamesProvider, fcProvider FileContentProvider) FileProvider {
+func NewFileProvider(cfg Config, fcProvider FileContentProvider) FileProvider {
 	return &fileProvider{
-		fileNamesProvider:   fnProvider,
+		config:              cfg,
 		fileContentProvider: fcProvider,
 	}
 }
 
 type fileProvider struct {
-	fileNamesProvider   FileNamesProvider
+	config              Config
 	fileContentProvider FileContentProvider
 }
 
 // ReadFiles reads files and directories recursively. Second argument accepts both file paths and directory paths.
-func (d *fileProvider) ReadFiles(ctx context.Context, paths []string) (<-chan entities.File, <-chan error, error) {
-	fileNames, err := d.fileNamesProvider.GetAllFileNames(ctx, paths)
-	if err != nil {
-		return nil, nil, err
-	}
+func (d *fileProvider) ReadFiles(ctx context.Context, fileNames []string) (<-chan entities.File, <-chan error) {
+	fileCh := make(chan entities.File, d.config.BufferSize)
 
-	// TODO take values from env or config.
-	readerWorkers := 3
-	if len(fileNames) < 10 {
-		readerWorkers = 1
-	}
+	doneCh := d.produceFiles(ctx, fileNames, d.config.Workers, fileCh)
 
-	fileCh := make(chan entities.File, len(fileNames)*2)
-
-	doneCh := d.produceFiles(ctx, fileNames, readerWorkers, fileCh)
-
-	return fileCh, doneCh, nil
+	return fileCh, doneCh
 }
 
 func (d *fileProvider) produceFiles(
