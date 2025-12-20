@@ -24,9 +24,14 @@ jobs:
 
       - name: Build release notes from CHANGELOG
         run: |
-          awk '/^## v/ {if(++n==1){print;next} else exit} n==1 {print}' CHANGELOG.md > /tmp/release-notes.md
+          tag="${GITHUB_REF_NAME}"
+          awk -v tag="## ${tag}" '
+            $0 ~ "^"tag { print; in=1; next }
+            /^## v/ && in { exit }
+            in { print }
+          ' CHANGELOG.md > /tmp/release-notes.md
           if [ ! -s /tmp/release-notes.md ]; then
-            echo "Failed to extract release notes from CHANGELOG.md" >&2
+            echo "Failed to extract release notes for ${tag} from CHANGELOG.md" >&2
             exit 1
           fi
 
