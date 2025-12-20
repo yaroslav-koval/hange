@@ -29,6 +29,14 @@ jobs:
           fi
           echo "version=$version_line" >> "$GITHUB_OUTPUT"
 
+      - name: Ensure version exists in CHANGELOG
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          if ! grep -q "^## ${version}\b" CHANGELOG.md; then
+            echo "CHANGELOG.md does not contain a heading for version ${version}" >&2
+            exit 1
+          fi
+
       - name: Ensure tag does not already exist
         run: |
           version="${{ steps.version.outputs.version }}"

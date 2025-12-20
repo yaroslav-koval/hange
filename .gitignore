@@ -34,3 +34,6 @@ go.work.sum
 
 # Agents cache
 .cache/
+
+# Added by goreleaser init:
+dist/

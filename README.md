@@ -51,6 +51,14 @@ Hange can be installed by 2 ways:
    ```shell
    go install .
     ```
+3. Download a release binary (no Go toolchain required). Example for macOS arm64:
+    ```shell
+    ver=v0.1.0
+    url=https://github.com/yaroslav-koval/hange/releases/download/$ver/hange_Darwin_arm64
+    curl -sL "$url" -o hange && chmod +x hange
+    ./hange version
+    ```
+   Consider moving `hange` into a directory on your `PATH` (e.g., `/usr/local/bin`) for easy access.
 
 ## Requirements
 
@@ -104,6 +112,12 @@ and use `make gen-cli-docs` to regenerate the markdown if commands or flags chan
 ## Changelog
 
 Release notes live in [CHANGELOG.md](CHANGELOG.md); use [docs/CHANGELOG_TEMPLATE.md](docs/CHANGELOG_TEMPLATE.md) when drafting a new entry.
+
+## Release pipeline
+
+- Update code, bump `version` in `config.yaml`, and add a matching `## vX.Y.Z` section at the top of `CHANGELOG.md`.
+- Push to `main`: `.github/workflows/autotag-on-config.yaml` verifies the changelog entry and creates tag `vX.Y.Z` (fails if tag exists).
+- Tag push triggers `.github/workflows/release.yml`, which extracts the top changelog section as release notes and runs GoReleaser to publish binaries for macOS/Linux on amd64/arm64.
 
 ## Reasons of using specific models.
 
