@@ -1,21 +1,45 @@
 name: release
 
 on:
-  push:
-    tags:
-      - "*"
+  workflow_run:
+    workflows:
+      - tag-on-config-change
+    types:
+      - completed
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          tag=$(awk -F': *' '/^version:/ {print $2}' config.yaml)
+          if [ -z "$tag" ]; then
+            echo "Could not determine release tag from config.yaml" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure tag exists and checkout
+        run: |
+          tag="${{ steps.tag.outputs.tag }}"
+          git fetch --tags
+          if ! git rev-parse "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag not found" >&2
+            exit 1
+          fi
+          git checkout "refs/tags/$tag"
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -24,7 +48,7 @@ jobs:
 
       - name: Build release notes from CHANGELOG
         run: |
-          tag="${GITHUB_REF_NAME}"
+          tag="${{ steps.tag.outputs.tag }}"
           awk -v tag="## ${tag}" '
             $0 ~ "^"tag { print; in=1; next }
             /^## v/ && in { exit }

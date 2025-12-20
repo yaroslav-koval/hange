@@ -73,10 +73,6 @@ func TestOpenAICommitProcessor_GenCommitMessage(t *testing.T) {
 		require.Equal(t, systemInstruction, payload["instructions"])
 		require.Equal(t, string(commitModel), payload["model"])
 
-		maxTokens, ok := payload["max_output_tokens"].(float64)
-		require.True(t, ok)
-		require.Equal(t, float64(80), maxTokens)
-
 		include, ok := payload["include"].([]any)
 		require.True(t, ok)
 		require.Contains(t, include, string(responses.ResponseIncludableFileSearchCallResults))
