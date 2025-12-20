@@ -30,16 +30,16 @@ jobs:
             exit 1
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
 
-      - name: Ensure tag exists and checkout
+      - name: Checkout release tag
         run: |
-          tag="${{ steps.tag.outputs.tag }}"
           git fetch --tags
-          if ! git rev-parse "refs/tags/$tag" >/dev/null 2>&1; then
-            echo "Tag $tag not found" >&2
+          if ! git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG not found" >&2
             exit 1
           fi
-          git checkout "refs/tags/$tag"
+          git checkout "refs/tags/$TAG"
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -48,14 +48,13 @@ jobs:
 
       - name: Build release notes from CHANGELOG
         run: |
-          tag="${{ steps.tag.outputs.tag }}"
-          awk -v tag="## ${tag}" '
-            $0 ~ "^"tag { print; in=1; next }
+          awk -v tag="## ${TAG}" '
+            index($0, tag) == 1 { print; in=1; next }
             /^## v/ && in { exit }
             in { print }
           ' CHANGELOG.md > /tmp/release-notes.md
           if [ ! -s /tmp/release-notes.md ]; then
-            echo "Failed to extract release notes for ${tag} from CHANGELOG.md" >&2
+            echo "Failed to extract release notes for ${TAG} from CHANGELOG.md" >&2
             exit 1
           fi
 
