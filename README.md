@@ -101,6 +101,10 @@ Generated Cobra command reference lives in [docs/commands](docs/commands). Start
 with [hange.md](docs/commands/hange.md),
 and use `make gen-cli-docs` to regenerate the markdown if commands or flags change.
 
+## Changelog
+
+Release notes live in [CHANGELOG.md](CHANGELOG.md); use [docs/CHANGELOG_TEMPLATE.md](docs/CHANGELOG_TEMPLATE.md) when drafting a new entry.
+
 ## Reasons of using specific models.
 
 Different commands can call different models by their reasons:
