@@ -49,9 +49,9 @@ jobs:
       - name: Build release notes from CHANGELOG
         run: |
           awk -v tag="## ${TAG}" '
-            index($0, tag) == 1 { print; in=1; next }
-            /^## v/ && in { exit }
-            in { print }
+            index($0, tag) == 1 { print; grab=1; next }
+            /^## v/ && grab { exit }
+            grab { print }
           ' CHANGELOG.md > /tmp/release-notes.md
           if [ ! -s /tmp/release-notes.md ]; then
             echo "Failed to extract release notes for ${TAG} from CHANGELOG.md" >&2
