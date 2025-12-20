@@ -1,0 +1,46 @@
+name: tag-on-config-change
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - config.yaml
+
+permissions:
+  contents: write
+
+jobs:
+  tag-release-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from config.yaml
+        id: version
+        run: |
+          version_line=$(awk -F': *' '/^version:/ {print $2}' config.yaml)
+          if [ -z "$version_line" ]; then
+            echo "version not found in config.yaml" >&2
+            exit 1
+          fi
+          echo "version=$version_line" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure tag does not already exist
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          if git ls-remote --tags origin "$version" | grep -q .; then
+            echo "Tag $version already exists on origin" >&2
+            exit 1
+          fi
+
+      - name: Create and push tag
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$version" -m "Release $version"
+          git push origin "$version"
