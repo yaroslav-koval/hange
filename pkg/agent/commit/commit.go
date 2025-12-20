@@ -2,7 +2,9 @@ package commit
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/openai/openai-go/v3"
@@ -19,6 +21,8 @@ func NewOpenAICommitProcessor(client *openai.Client) agent.CommitProcessor {
 
 const commitModel = openai.ChatModelGPT5Nano
 
+var errEmptyOutput = errors.New("empty LLM output")
+
 type openAICommitProcessor struct {
 	client *openai.Client
 }
@@ -32,11 +36,21 @@ func (cp *openAICommitProcessor) GenCommitMessage(ctx context.Context, data enti
 		Input: responses.ResponseNewParamsInputUnion{
 			OfString: openai.String(cp.buildInput(data)),
 		},
-		Model:           commitModel,
-		MaxOutputTokens: openai.Int(80),
+		Model: commitModel,
 	})
 	if err != nil {
 		return "", err
+	}
+
+	slog.Info(fmt.Sprintf("LLM output: %s", resp.OutputText()))
+
+	if resp.Status == responses.ResponseStatusIncomplete {
+		slog.Debug(fmt.Sprintf("Status: %s. Reason: %s",
+			resp.Status, resp.IncompleteDetails.Reason))
+	}
+
+	if len(resp.OutputText()) == 0 {
+		return "", errEmptyOutput
 	}
 
 	return resp.OutputText(), nil
