@@ -1,9 +1,10 @@
 package configcli
 
 import (
-	"fmt"
+	"errors"
 	"log/slog"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/viper"
 	"github.com/yaroslav-koval/hange/pkg/config"
@@ -50,10 +51,22 @@ func setConfigFileOrDefault(viper *viper.Viper, cfgFile string) error {
 			return err
 		}
 
-		cfgFile = fmt.Sprintf("%s/.%s", home, consts.AppName)
+		cfgDir := filepath.Join(home, "."+consts.AppName)
+
+		if err = os.Mkdir(cfgDir, 0700); err != nil && !errors.Is(err, os.ErrExist) {
+			return err
+		}
+
+		cfgFile = filepath.Join(cfgDir, "config")
 
 		// create a config file if not exists
-		if _, err = os.OpenFile(cfgFile, os.O_CREATE, 0600); err != nil {
+		f, err := os.OpenFile(cfgFile, os.O_CREATE, 0700)
+		if err != nil {
+			return err
+		}
+
+		err = f.Close()
+		if err != nil {
 			return err
 		}
 	}

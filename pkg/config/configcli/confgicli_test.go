@@ -11,7 +11,10 @@ import (
 	"github.com/yaroslav-koval/hange/pkg/consts"
 )
 
-var configName = "." + consts.AppName
+var (
+	configDirName = "." + consts.AppName
+	configName    = "config"
+)
 
 func TestInitCLIConfig(t *testing.T) {
 	th := &tempHome{}
@@ -25,7 +28,7 @@ func TestInitCLIConfig(t *testing.T) {
 		err := initCLIConfig(viper.New(), "")
 		require.NoError(t, err)
 
-		dir, err := os.ReadDir(tempHomeDir)
+		dir, err := os.ReadDir(filepath.Join(tempHomeDir, configDirName))
 		require.NoError(t, err)
 
 		var found bool
@@ -43,11 +46,14 @@ func TestInitCLIConfig(t *testing.T) {
 		tempHomeDir := th.createTempHome(t)
 		defer th.restoreHome(t)
 
-		cfgPath := tempHomeDir + "/" + configName
+		dirPath := filepath.Join(tempHomeDir, configDirName)
+		require.NoError(t, os.MkdirAll(dirPath, 0744))
+
+		cfgPath := filepath.Join(dirPath, configName)
 
 		configContent := []byte("version: v1")
 
-		err := os.WriteFile(cfgPath, configContent, 0644)
+		err := os.WriteFile(cfgPath, configContent, 0744)
 		require.NoError(t, err)
 
 		err = initCLIConfig(viper.New(), "")
@@ -129,7 +135,7 @@ func TestNewCLIConfig(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, cfg)
 
-		_, err = os.Stat(filepath.Join(tempHomeDir, configName))
+		_, err = os.Stat(filepath.Join(tempHomeDir, configDirName, configName))
 		require.NoError(t, err)
 	})
 
