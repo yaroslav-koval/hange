@@ -6,7 +6,11 @@ package appbuilder_mock
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	"github.com/yaroslav-koval/hange/pkg/factory"
+	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/pkg/auth"
+	"github.com/yaroslav-koval/hange/pkg/config"
+	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/pkg/git"
 )
 
 // NewMockAppBuilder creates a new instance of MockAppBuilder. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -36,70 +40,277 @@ func (_m *MockAppBuilder) EXPECT() *MockAppBuilder_Expecter {
 	return &MockAppBuilder_Expecter{mock: &_m.Mock}
 }
 
-// BuildApp provides a mock function for the type MockAppBuilder
-func (_mock *MockAppBuilder) BuildApp(appFactory factory.AppFactory, agentFactory factory.AgentFactory) (*factory.App, error) {
-	ret := _mock.Called(appFactory, agentFactory)
+// GetAIAgent provides a mock function for the type MockAppBuilder
+func (_mock *MockAppBuilder) GetAIAgent() (agent.AIAgent, error) {
+	ret := _mock.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for BuildApp")
+		panic("no return value specified for GetAIAgent")
 	}
 
-	var r0 *factory.App
+	var r0 agent.AIAgent
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(factory.AppFactory, factory.AgentFactory) (*factory.App, error)); ok {
-		return returnFunc(appFactory, agentFactory)
+	if returnFunc, ok := ret.Get(0).(func() (agent.AIAgent, error)); ok {
+		return returnFunc()
 	}
-	if returnFunc, ok := ret.Get(0).(func(factory.AppFactory, factory.AgentFactory) *factory.App); ok {
-		r0 = returnFunc(appFactory, agentFactory)
+	if returnFunc, ok := ret.Get(0).(func() agent.AIAgent); ok {
+		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*factory.App)
+			r0 = ret.Get(0).(agent.AIAgent)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(factory.AppFactory, factory.AgentFactory) error); ok {
-		r1 = returnFunc(appFactory, agentFactory)
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockAppBuilder_BuildApp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'BuildApp'
-type MockAppBuilder_BuildApp_Call struct {
+// MockAppBuilder_GetAIAgent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAIAgent'
+type MockAppBuilder_GetAIAgent_Call struct {
 	*mock.Call
 }
 
-// BuildApp is a helper method to define mock.On call
-//   - appFactory factory.AppFactory
-//   - agentFactory factory.AgentFactory
-func (_e *MockAppBuilder_Expecter) BuildApp(appFactory interface{}, agentFactory interface{}) *MockAppBuilder_BuildApp_Call {
-	return &MockAppBuilder_BuildApp_Call{Call: _e.mock.On("BuildApp", appFactory, agentFactory)}
+// GetAIAgent is a helper method to define mock.On call
+func (_e *MockAppBuilder_Expecter) GetAIAgent() *MockAppBuilder_GetAIAgent_Call {
+	return &MockAppBuilder_GetAIAgent_Call{Call: _e.mock.On("GetAIAgent")}
 }
 
-func (_c *MockAppBuilder_BuildApp_Call) Run(run func(appFactory factory.AppFactory, agentFactory factory.AgentFactory)) *MockAppBuilder_BuildApp_Call {
+func (_c *MockAppBuilder_GetAIAgent_Call) Run(run func()) *MockAppBuilder_GetAIAgent_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 factory.AppFactory
-		if args[0] != nil {
-			arg0 = args[0].(factory.AppFactory)
-		}
-		var arg1 factory.AgentFactory
-		if args[1] != nil {
-			arg1 = args[1].(factory.AgentFactory)
-		}
-		run(
-			arg0,
-			arg1,
-		)
+		run()
 	})
 	return _c
 }
 
-func (_c *MockAppBuilder_BuildApp_Call) Return(app *factory.App, err error) *MockAppBuilder_BuildApp_Call {
-	_c.Call.Return(app, err)
+func (_c *MockAppBuilder_GetAIAgent_Call) Return(aIAgent agent.AIAgent, err error) *MockAppBuilder_GetAIAgent_Call {
+	_c.Call.Return(aIAgent, err)
 	return _c
 }
 
-func (_c *MockAppBuilder_BuildApp_Call) RunAndReturn(run func(appFactory factory.AppFactory, agentFactory factory.AgentFactory) (*factory.App, error)) *MockAppBuilder_BuildApp_Call {
+func (_c *MockAppBuilder_GetAIAgent_Call) RunAndReturn(run func() (agent.AIAgent, error)) *MockAppBuilder_GetAIAgent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuth provides a mock function for the type MockAppBuilder
+func (_mock *MockAppBuilder) GetAuth() (auth.Auth, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuth")
+	}
+
+	var r0 auth.Auth
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (auth.Auth, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() auth.Auth); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(auth.Auth)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppBuilder_GetAuth_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuth'
+type MockAppBuilder_GetAuth_Call struct {
+	*mock.Call
+}
+
+// GetAuth is a helper method to define mock.On call
+func (_e *MockAppBuilder_Expecter) GetAuth() *MockAppBuilder_GetAuth_Call {
+	return &MockAppBuilder_GetAuth_Call{Call: _e.mock.On("GetAuth")}
+}
+
+func (_c *MockAppBuilder_GetAuth_Call) Run(run func()) *MockAppBuilder_GetAuth_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppBuilder_GetAuth_Call) Return(auth1 auth.Auth, err error) *MockAppBuilder_GetAuth_Call {
+	_c.Call.Return(auth1, err)
+	return _c
+}
+
+func (_c *MockAppBuilder_GetAuth_Call) RunAndReturn(run func() (auth.Auth, error)) *MockAppBuilder_GetAuth_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetConfigurator provides a mock function for the type MockAppBuilder
+func (_mock *MockAppBuilder) GetConfigurator() (config.Configurator, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetConfigurator")
+	}
+
+	var r0 config.Configurator
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (config.Configurator, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() config.Configurator); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(config.Configurator)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppBuilder_GetConfigurator_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConfigurator'
+type MockAppBuilder_GetConfigurator_Call struct {
+	*mock.Call
+}
+
+// GetConfigurator is a helper method to define mock.On call
+func (_e *MockAppBuilder_Expecter) GetConfigurator() *MockAppBuilder_GetConfigurator_Call {
+	return &MockAppBuilder_GetConfigurator_Call{Call: _e.mock.On("GetConfigurator")}
+}
+
+func (_c *MockAppBuilder_GetConfigurator_Call) Run(run func()) *MockAppBuilder_GetConfigurator_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppBuilder_GetConfigurator_Call) Return(configurator config.Configurator, err error) *MockAppBuilder_GetConfigurator_Call {
+	_c.Call.Return(configurator, err)
+	return _c
+}
+
+func (_c *MockAppBuilder_GetConfigurator_Call) RunAndReturn(run func() (config.Configurator, error)) *MockAppBuilder_GetConfigurator_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetFileProvider provides a mock function for the type MockAppBuilder
+func (_mock *MockAppBuilder) GetFileProvider() (fileprovider.FileProvider, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetFileProvider")
+	}
+
+	var r0 fileprovider.FileProvider
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (fileprovider.FileProvider, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() fileprovider.FileProvider); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(fileprovider.FileProvider)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppBuilder_GetFileProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFileProvider'
+type MockAppBuilder_GetFileProvider_Call struct {
+	*mock.Call
+}
+
+// GetFileProvider is a helper method to define mock.On call
+func (_e *MockAppBuilder_Expecter) GetFileProvider() *MockAppBuilder_GetFileProvider_Call {
+	return &MockAppBuilder_GetFileProvider_Call{Call: _e.mock.On("GetFileProvider")}
+}
+
+func (_c *MockAppBuilder_GetFileProvider_Call) Run(run func()) *MockAppBuilder_GetFileProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppBuilder_GetFileProvider_Call) Return(fileProvider fileprovider.FileProvider, err error) *MockAppBuilder_GetFileProvider_Call {
+	_c.Call.Return(fileProvider, err)
+	return _c
+}
+
+func (_c *MockAppBuilder_GetFileProvider_Call) RunAndReturn(run func() (fileprovider.FileProvider, error)) *MockAppBuilder_GetFileProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetGitChangesProvider provides a mock function for the type MockAppBuilder
+func (_mock *MockAppBuilder) GetGitChangesProvider() (git.ChangesProvider, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGitChangesProvider")
+	}
+
+	var r0 git.ChangesProvider
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (git.ChangesProvider, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() git.ChangesProvider); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(git.ChangesProvider)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAppBuilder_GetGitChangesProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetGitChangesProvider'
+type MockAppBuilder_GetGitChangesProvider_Call struct {
+	*mock.Call
+}
+
+// GetGitChangesProvider is a helper method to define mock.On call
+func (_e *MockAppBuilder_Expecter) GetGitChangesProvider() *MockAppBuilder_GetGitChangesProvider_Call {
+	return &MockAppBuilder_GetGitChangesProvider_Call{Call: _e.mock.On("GetGitChangesProvider")}
+}
+
+func (_c *MockAppBuilder_GetGitChangesProvider_Call) Run(run func()) *MockAppBuilder_GetGitChangesProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockAppBuilder_GetGitChangesProvider_Call) Return(changesProvider git.ChangesProvider, err error) *MockAppBuilder_GetGitChangesProvider_Call {
+	_c.Call.Return(changesProvider, err)
+	return _c
+}
+
+func (_c *MockAppBuilder_GetGitChangesProvider_Call) RunAndReturn(run func() (git.ChangesProvider, error)) *MockAppBuilder_GetGitChangesProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }
