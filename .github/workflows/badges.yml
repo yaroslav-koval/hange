@@ -51,7 +51,7 @@ jobs:
           jq -n \
             --arg coverage "${COVERAGE}" \
             --arg color "${color}" \
-            '{schemaVersion:1,label:"coverage",message:($coverage + "%"),color:$color,cacheSeconds:300}' > "${tmpfile}"
+            '{schemaVersion:1,label:"Coverage",message:($coverage + "%"),color:$color,cacheSeconds:300}' > "${tmpfile}"
           echo "BADGE_JSON_COVERAGE=${tmpfile}" >> "${GITHUB_ENV}"
 
       - name: Build binaries and calculate sizes
@@ -81,11 +81,11 @@ jobs:
 
           jq -n \
             --arg size "${size_amd64}" \
-            '{schemaVersion:1,label:"binary size (amd64)",message:$size,color:"informational",cacheSeconds:300}' > "${tmp_amd64}"
+            '{schemaVersion:1,label:"Binary size (amd64)",message:$size,color:"informational",cacheSeconds:300}' > "${tmp_amd64}"
 
           jq -n \
             --arg size "${size_arm64}" \
-            '{schemaVersion:1,label:"binary size (arm64)",message:$size,color:"informational",cacheSeconds:300}' > "${tmp_arm64}"
+            '{schemaVersion:1,label:"Binary size (arm64)",message:$size,color:"informational",cacheSeconds:300}' > "${tmp_arm64}"
 
           echo "BADGE_JSON_AMD64=${tmp_amd64}" >> "${GITHUB_ENV}"
           echo "BADGE_JSON_ARM64=${tmp_arm64}" >> "${GITHUB_ENV}"
@@ -104,6 +104,8 @@ jobs:
           cp "${BADGE_JSON_AMD64}" configs/badges/binary-size-amd64.json
           cp "${BADGE_JSON_ARM64}" configs/badges/binary-size-arm64.json
           git add configs/badges/test-coverage.json configs/badges/binary-size-amd64.json configs/badges/binary-size-arm64.json
+          
+          git pull
 
           if git diff --cached --quiet; then
             echo "No badge changes to commit."
