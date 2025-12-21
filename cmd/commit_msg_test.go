@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
 	"github.com/yaroslav-koval/hange/pkg/agent/entity"
 
 	aiagent_mock "github.com/yaroslav-koval/hange/mocks/aiagent"
 	changesprovider_mock "github.com/yaroslav-koval/hange/mocks/changesprovider"
-	"github.com/yaroslav-koval/hange/pkg/factory"
 )
 
 func TestCommitMessageCommandRunESuccess(t *testing.T) {
@@ -19,10 +19,10 @@ func TestCommitMessageCommandRunESuccess(t *testing.T) {
 	gitMock := changesprovider_mock.NewMockChangesProvider(t)
 	agentMock := aiagent_mock.NewMockAIAgent(t)
 
-	app := &factory.App{
-		Agent: agentMock,
-		Git:   gitMock,
-	}
+	app := appbuilder_mock.NewMockAppBuilder(t)
+
+	app.EXPECT().GetGitChangesProvider().Return(gitMock, nil)
+	app.EXPECT().GetAIAgent().Return(agentMock, nil)
 
 	ctx := appToContext(context.Background(), app)
 
@@ -89,10 +89,10 @@ func TestGenerateCommitMessageSuccess(t *testing.T) {
 				Diff:         "diff output",
 			}).Return("final message", nil)
 
-			app := &factory.App{
-				Agent: agentMock,
-				Git:   gitMock,
-			}
+			app := appbuilder_mock.NewMockAppBuilder(t)
+
+			app.EXPECT().GetGitChangesProvider().Return(gitMock, nil)
+			app.EXPECT().GetAIAgent().Return(agentMock, nil)
 
 			message, err := generateCommitMessage(ctx, app, tt.args)
 			require.NoError(t, err)
@@ -114,7 +114,9 @@ func TestGenerateCommitMessagePropagatesErrors(t *testing.T) {
 		gitMock := changesprovider_mock.NewMockChangesProvider(t)
 		gitMock.EXPECT().Status(ctx).Return("", statusErr)
 
-		app := &factory.App{Git: gitMock}
+		app := appbuilder_mock.NewMockAppBuilder(t)
+
+		app.EXPECT().GetGitChangesProvider().Return(gitMock, nil)
 
 		message, err := generateCommitMessage(ctx, app, nil)
 		require.Empty(t, message)
@@ -130,7 +132,9 @@ func TestGenerateCommitMessagePropagatesErrors(t *testing.T) {
 		gitMock.EXPECT().Status(ctx).Return("git status", nil)
 		gitMock.EXPECT().StagedStatus(ctx).Return("", stagedStatusErr)
 
-		app := &factory.App{Git: gitMock}
+		app := appbuilder_mock.NewMockAppBuilder(t)
+
+		app.EXPECT().GetGitChangesProvider().Return(gitMock, nil)
 
 		message, err := generateCommitMessage(ctx, app, nil)
 		require.Empty(t, message)
@@ -147,7 +151,9 @@ func TestGenerateCommitMessagePropagatesErrors(t *testing.T) {
 		gitMock.EXPECT().StagedStatus(ctx).Return("staged status", nil)
 		gitMock.EXPECT().StagedDiff(ctx, 30).Return("", diffErr)
 
-		app := &factory.App{Git: gitMock}
+		app := appbuilder_mock.NewMockAppBuilder(t)
+
+		app.EXPECT().GetGitChangesProvider().Return(gitMock, nil)
 
 		message, err := generateCommitMessage(ctx, app, nil)
 		require.Empty(t, message)
@@ -171,10 +177,10 @@ func TestGenerateCommitMessagePropagatesErrors(t *testing.T) {
 			Diff:         "diff output",
 		}).Return("", agentErr)
 
-		app := &factory.App{
-			Agent: agentMock,
-			Git:   gitMock,
-		}
+		app := appbuilder_mock.NewMockAppBuilder(t)
+
+		app.EXPECT().GetGitChangesProvider().Return(gitMock, nil)
+		app.EXPECT().GetAIAgent().Return(agentMock, nil)
 
 		message, err := generateCommitMessage(ctx, app, nil)
 		require.Empty(t, message)

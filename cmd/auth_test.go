@@ -8,10 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
-
+	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
 	auth_mock "github.com/yaroslav-koval/hange/mocks/auth"
 	"github.com/yaroslav-koval/hange/pkg/auth"
-	"github.com/yaroslav-koval/hange/pkg/factory"
 )
 
 func TestAuthCommandUsesArgumentToken(t *testing.T) {
@@ -35,9 +34,7 @@ func TestAuthCommandReadsTokenFromStdin(t *testing.T) {
 func TestAuthCommandFailsWhenTokenMissing(t *testing.T) {
 	t.Cleanup(setStdin(t, ""))
 
-	mockAuth := auth_mock.NewMockAuth(t)
-
-	err := runAuthCommand(t, mockAuth, nil)
+	err := runAuthCommand(t, nil, nil)
 	require.ErrorContains(t, err, "failed to parse token argument")
 }
 
@@ -76,8 +73,14 @@ func TestReadTokenFromStdinErrors(t *testing.T) {
 func runAuthCommand(t *testing.T, authService auth.Auth, args []string) error {
 	t.Helper()
 
+	app := appbuilder_mock.NewMockAppBuilder(t)
+
+	if authService != nil {
+		app.EXPECT().GetAuth().Return(authService, nil)
+	}
+
 	cmd := &cobra.Command{RunE: authCmd.RunE}
-	ctx := appToContext(context.Background(), &factory.App{Auth: authService})
+	ctx := appToContext(context.Background(), app)
 	cmd.SetContext(ctx)
 
 	return cmd.RunE(cmd, args)

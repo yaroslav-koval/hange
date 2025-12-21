@@ -42,7 +42,12 @@ hange auth "token-value"`,
 			return err
 		}
 
-		if err := app.Auth.SaveToken(token); err != nil {
+		auth, err := app.GetAuth()
+		if err != nil {
+			return err
+		}
+
+		if err := auth.SaveToken(token); err != nil {
 			return err
 		}
 

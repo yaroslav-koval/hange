@@ -38,7 +38,7 @@ func init() {
 	rootCmd.AddCommand(commitMsgCmd)
 }
 
-func generateCommitMessage(ctx context.Context, app *factory.App, args []string) (string, error) {
+func generateCommitMessage(ctx context.Context, app factory.AppBuilder, args []string) (string, error) {
 	if len(args) > 1 {
 		return "", fmt.Errorf("received %d args. This command accepts at most 1 arg with user context of changes",
 			len(args))
@@ -49,22 +49,32 @@ func generateCommitMessage(ctx context.Context, app *factory.App, args []string)
 		userInput = args[0]
 	}
 
-	status, err := app.Git.Status(ctx)
+	git, err := app.GetGitChangesProvider()
 	if err != nil {
 		return "", err
 	}
 
-	stagedStatus, err := app.Git.StagedStatus(ctx)
+	status, err := git.Status(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	diff, err := app.Git.StagedDiff(ctx, 30)
+	stagedStatus, err := git.StagedStatus(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	res, err := app.Agent.CreateCommitMessage(ctx, entity.CommitData{
+	diff, err := git.StagedDiff(ctx, 30)
+	if err != nil {
+		return "", err
+	}
+
+	agent, err := app.GetAIAgent()
+	if err != nil {
+		return "", err
+	}
+
+	res, err := agent.CreateCommitMessage(ctx, entity.CommitData{
 		UserInput:    userInput,
 		Status:       status,
 		StagedStatus: stagedStatus,

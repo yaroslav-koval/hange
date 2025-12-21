@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"runtime"
 
 	"github.com/spf13/cobra"
 	"github.com/yaroslav-koval/hange/pkg/factory"
@@ -52,7 +53,7 @@ func init() {
 }
 
 type explainCmdProcessor struct {
-	app *factory.App
+	app factory.AppBuilder
 }
 
 var errNoArgs = errors.New("no arguments provided")
@@ -75,14 +76,27 @@ func (ep *explainCmdProcessor) validateArgs(args []string) error {
 func (ep *explainCmdProcessor) processExplanation(ctx context.Context, args []string) (string, error) {
 	eg, ctx := errgroup.WithContext(ctx)
 
-	fileNames, err := ep.app.FileProvider.GetAllFileNames(ctx, args)
+	fp, err := ep.app.GetFileProvider()
+	if err != nil {
+		return "", nil
+	}
+
+	fileNames, err := fp.GetAllFileNames(ctx, args)
 	if err != nil {
 		return "", err
 	}
 
-	filesCh, doneCh := ep.app.FileProvider.ReadFiles(ctx, fileprovider.Config{
-		Workers:    3, // TODO take from config
-		BufferSize: 3 * 2,
+	agent, err := ep.app.GetAIAgent()
+	if err != nil {
+		return "", err
+	}
+
+	workers := runtime.GOMAXPROCS(0) - 1 // keep 1 free thread for files consumer
+	workers = max(workers, 1)            // in case GOMAXPROCS=1
+
+	filesCh, doneCh := fp.ReadFiles(ctx, fileprovider.Config{
+		Workers:    workers,
+		BufferSize: workers * 2,
 	}, fileNames)
 
 	eg.Go(func() error {
@@ -92,7 +106,7 @@ func (ep *explainCmdProcessor) processExplanation(ctx context.Context, args []st
 	var output string
 
 	eg.Go(func() error {
-		output, err = ep.app.Agent.ExplainFiles(ctx, filesCh)
+		output, err = agent.ExplainFiles(ctx, filesCh)
 		if err != nil {
 			return err
 		}

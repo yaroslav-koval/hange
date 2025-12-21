@@ -19,10 +19,6 @@ const (
 	flagKeyConfigPath = "config"
 )
 
-var (
-	appBuilder factory.AppBuilder
-)
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "hange",
@@ -57,10 +53,7 @@ It likes to explain code, write documentation and just chat.`,
 		cliFactory := appfactory.NewCLIFactory(cfgPath)
 		openAIFactory := agentfactory.NewOpenAIFactory()
 
-		app, err := appBuilder.BuildApp(cliFactory, openAIFactory)
-		if err != nil {
-			return err
-		}
+		app := factory.NewAppBuilder(cliFactory, openAIFactory)
 
 		ctx = appToContext(cmd.Context(), app)
 		cmd.SetContext(ctx)
@@ -72,8 +65,6 @@ It likes to explain code, write documentation and just chat.`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	appBuilder = factory.NewAppBuilder()
-
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -81,8 +72,6 @@ func Execute() {
 }
 
 func GetRootCmd() *cobra.Command {
-	appBuilder = factory.NewAppBuilder()
-
 	return rootCmd
 }
 

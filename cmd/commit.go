@@ -20,7 +20,12 @@ var commitCmd = &cobra.Command{
 			return err
 		}
 
-		return app.Git.Commit(cmd.Context(), message)
+		git, err := app.GetGitChangesProvider()
+		if err != nil {
+			return err
+		}
+
+		return git.Commit(cmd.Context(), message)
 	},
 }
 

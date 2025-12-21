@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
 	aiagent_mock "github.com/yaroslav-koval/hange/mocks/aiagent"
+	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
 	changesprovider_mock "github.com/yaroslav-koval/hange/mocks/changesprovider"
 	"github.com/yaroslav-koval/hange/pkg/agent/entity"
-	"github.com/yaroslav-koval/hange/pkg/factory"
 )
 
 func TestCommitCmdRunESuccess(t *testing.T) {
@@ -18,10 +17,10 @@ func TestCommitCmdRunESuccess(t *testing.T) {
 	gitMock := changesprovider_mock.NewMockChangesProvider(t)
 	agentMock := aiagent_mock.NewMockAIAgent(t)
 
-	app := &factory.App{
-		Agent: agentMock,
-		Git:   gitMock,
-	}
+	app := appbuilder_mock.NewMockAppBuilder(t)
+
+	app.EXPECT().GetGitChangesProvider().Return(gitMock, nil)
+	app.EXPECT().GetAIAgent().Return(agentMock, nil)
 
 	ctx := appToContext(context.Background(), app)
 

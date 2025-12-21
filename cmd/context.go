@@ -13,10 +13,10 @@ var appContextKey appKey
 
 var errAppNotInitialized = errors.New("application not initialized")
 
-func appFromContext(ctx context.Context) (*factory.App, error) {
+func appFromContext(ctx context.Context) (factory.AppBuilder, error) {
 	v := ctx.Value(appContextKey)
 
-	app, ok := v.(*factory.App)
+	app, ok := v.(factory.AppBuilder)
 	if !ok {
 		return nil, errAppNotInitialized
 	}
@@ -24,6 +24,6 @@ func appFromContext(ctx context.Context) (*factory.App, error) {
 	return app, nil
 }
 
-func appToContext(ctx context.Context, app *factory.App) context.Context {
+func appToContext(ctx context.Context, app factory.AppBuilder) context.Context {
 	return context.WithValue(ctx, appContextKey, app)
 }

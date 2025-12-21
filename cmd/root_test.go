@@ -9,10 +9,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
-	"github.com/yaroslav-koval/hange/pkg/factory"
 	"golang.org/x/sys/unix"
 )
 
@@ -60,21 +57,7 @@ func TestRootCommandFlags(t *testing.T) {
 }
 
 func TestRootPersistentPreRunEHandlesCancellation(t *testing.T) {
-	originalBuilder := appBuilder
-
-	mockAppBuilder := appbuilder_mock.NewMockAppBuilder(t)
-
 	cfgPath := filepath.Join(t.TempDir(), "config.yaml")
-
-	mockAppBuilder.EXPECT().
-		BuildApp(mock.Anything, mock.Anything).
-		Return(&factory.App{}, nil)
-
-	appBuilder = mockAppBuilder
-
-	t.Cleanup(func() {
-		appBuilder = originalBuilder
-	})
 
 	cmd := &cobra.Command{}
 	cmd.Flags().String(flagKeyConfigPath, cfgPath, "config")
