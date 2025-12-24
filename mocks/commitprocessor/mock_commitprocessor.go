@@ -8,7 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
-	"github.com/yaroslav-koval/hange/pkg/agent/entity"
+	"github.com/yaroslav-koval/hange/domain/agent/entity"
 )
 
 // NewMockCommitProcessor creates a new instance of MockCommitProcessor. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

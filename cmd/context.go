@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/yaroslav-koval/hange/pkg/factory"
+	"github.com/yaroslav-koval/hange/domain/factory"
 )
 
 type appKey struct{}

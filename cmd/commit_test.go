@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/yaroslav-koval/hange/domain/agent/entity"
 	aiagent_mock "github.com/yaroslav-koval/hange/mocks/aiagent"
 	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
 	changesprovider_mock "github.com/yaroslav-koval/hange/mocks/changesprovider"
-	"github.com/yaroslav-koval/hange/pkg/agent/entity"
 )
 
 func TestCommitCmdRunESuccess(t *testing.T) {

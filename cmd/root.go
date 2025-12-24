@@ -8,10 +8,10 @@ import (
 	"syscall"
 
 	"github.com/spf13/cobra"
+	"github.com/yaroslav-koval/hange/domain/factory"
+	"github.com/yaroslav-koval/hange/domain/factory/agentfactory"
+	"github.com/yaroslav-koval/hange/domain/factory/appfactory"
 	"github.com/yaroslav-koval/hange/pkg/envs"
-	"github.com/yaroslav-koval/hange/pkg/factory"
-	"github.com/yaroslav-koval/hange/pkg/factory/agentfactory"
-	"github.com/yaroslav-koval/hange/pkg/factory/appfactory"
 )
 
 const (

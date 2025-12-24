@@ -77,19 +77,16 @@ Hange can be installed by 2 ways:
 
 * `main.go` boots the Cobra CLI and embeds `config.yaml` for version output.
 * `cmd/` contains Cobra commands (`auth`, `explain`, `commit[-msg]`, `version`) with minimal wiring only.
-* `pkg/agent` holds LLM-facing processors: commit message generation and file explanation (OpenAI Responses + vector
-  store upload).
-* `pkg/auth` manages storing/fetching the OpenAI token via adapters over config.
-* `pkg/config` wraps Viper for CLI config handling; `pkg/consts` keeps shared constants.
-* `pkg/factory` wires app + agent dependencies; `pkg/fileprovider/directory` streams files/dirs; `pkg/git/gitadapter`
-  shells out to git.
+* `domain/` holds the domain logic and entities
+* `pkg/consts` and `pkg/envs` keep cross-cutting constants and env var names used by the CLI wiring.
 * `mocks/` stores generated interfaces; `configs/badges/` holds badge data.
 
 ## Adapters pattern
 
-Packages keep core interfaces at the root and place concrete adapters in nested folders. Example: `pkg/agent` defines
+Packages keep core interfaces at the root and place concrete adapters in nested folders. Example: `domain/agent` defines
 the primary `AIAgent` along with secondary interfaces (`CommitProcessor`, `ExplainProcessor`); the OpenAI-backed
-implementations live in `pkg/agent/commit` and `pkg/agent/explain`, and factories pick the adapter at runtime. This
+implementations live in `domain/agent/commit` and `domain/agent/explain`, and factories pick the adapter at runtime.
+This
 keeps the core logic reusable while swapping integrations per environment.
 
 ## Tests
@@ -111,13 +108,16 @@ and use `make gen-cli-docs` to regenerate the markdown if commands or flags chan
 
 ## Changelog
 
-Release notes live in [CHANGELOG.md](CHANGELOG.md); use [docs/CHANGELOG_TEMPLATE.md](docs/CHANGELOG_TEMPLATE.md) when drafting a new entry.
+Release notes live in [CHANGELOG.md](CHANGELOG.md); use [docs/CHANGELOG_TEMPLATE.md](docs/CHANGELOG_TEMPLATE.md) when
+drafting a new entry.
 
 ## Release pipeline
 
 - Update code, bump `version` in `config.yaml`, and add a matching `## vX.Y.Z` section at the top of `CHANGELOG.md`.
-- Push to `main`: `.github/workflows/autotag-on-config.yaml` verifies the changelog entry and creates tag `vX.Y.Z` (fails if tag exists).
-- Tag push triggers `.github/workflows/release.yml`, which extracts the top changelog section as release notes and runs GoReleaser to publish binaries for macOS/Linux on amd64/arm64.
+- Push to `main`: `.github/workflows/autotag-on-config.yaml` verifies the changelog entry and creates tag `vX.Y.Z` (
+  fails if tag exists).
+- Tag push triggers `.github/workflows/release.yml`, which extracts the top changelog section as release notes and runs
+  GoReleaser to publish binaries for macOS/Linux on amd64/arm64.
 
 ## Reasons of using specific models.
 

@@ -6,7 +6,7 @@ package agentfactory_mock
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	"github.com/yaroslav-koval/hange/pkg/agent"
+	"github.com/yaroslav-koval/hange/domain/agent"
 	"github.com/yaroslav-koval/hange/pkg/auth"
 )
 

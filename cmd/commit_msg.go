@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/yaroslav-koval/hange/pkg/agent/entity"
-	"github.com/yaroslav-koval/hange/pkg/factory"
+	"github.com/yaroslav-koval/hange/domain/agent/entity"
+	"github.com/yaroslav-koval/hange/domain/factory"
 )
 
 var commitMsgCmd = &cobra.Command{

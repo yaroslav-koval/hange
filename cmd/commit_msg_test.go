@@ -6,10 +6,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
-	"github.com/yaroslav-koval/hange/pkg/agent/entity"
-
+	"github.com/yaroslav-koval/hange/domain/agent/entity"
 	aiagent_mock "github.com/yaroslav-koval/hange/mocks/aiagent"
+	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
 	changesprovider_mock "github.com/yaroslav-koval/hange/mocks/changesprovider"
 )
 

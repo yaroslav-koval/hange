@@ -8,7 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
-	"github.com/yaroslav-koval/hange/pkg/agent/entity"
+	"github.com/yaroslav-koval/hange/domain/agent/entity"
 	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
