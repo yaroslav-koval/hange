@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
 )
 
 func TestOSFileErrMapper_Map(t *testing.T) {

@@ -8,9 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/require"
+	"github.com/yaroslav-koval/hange/domain/auth"
 	appbuilder_mock "github.com/yaroslav-koval/hange/mocks/appbuilder"
 	auth_mock "github.com/yaroslav-koval/hange/mocks/auth"
-	"github.com/yaroslav-koval/hange/pkg/auth"
 )
 
 func TestAuthCommandUsesArgumentToken(t *testing.T) {

@@ -8,9 +8,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/yaroslav-koval/hange/domain/entities"
 	filecontentprovider_mock "github.com/yaroslav-koval/hange/mocks/filecontentprovider"
 	filenamesprovider_mock "github.com/yaroslav-koval/hange/mocks/filenamesprovider"
-	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
 func TestFileProvider_ReadFilesSuccess(t *testing.T) {

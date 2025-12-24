@@ -1,6 +1,6 @@
 .PHONY:gen-mocks
 gen-mocks:
-	rm -frd
+	rm -frd mocks
 	mockery --config configs/.mockery.yml
 
 .PHONY:gen-cli-docs

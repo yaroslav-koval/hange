@@ -6,11 +6,11 @@ package appfactory_mock
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	"github.com/yaroslav-koval/hange/domain/auth"
+	"github.com/yaroslav-koval/hange/domain/config"
 	"github.com/yaroslav-koval/hange/domain/crypt"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
 	"github.com/yaroslav-koval/hange/domain/git"
-	"github.com/yaroslav-koval/hange/pkg/auth"
-	"github.com/yaroslav-koval/hange/pkg/config"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 )
 
 // NewMockAppFactory creates a new instance of MockAppFactory. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

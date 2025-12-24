@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
 	fileerrormapper_mock "github.com/yaroslav-koval/hange/mocks/fileerrormapper"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 )
 
 func TestOSFileNamesProvider_GetAllFileNames(t *testing.T) {

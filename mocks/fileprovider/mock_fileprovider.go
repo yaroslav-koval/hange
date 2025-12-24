@@ -8,8 +8,8 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
-	"github.com/yaroslav-koval/hange/pkg/entities"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/domain/entities"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
 )
 
 // NewMockFileProvider creates a new instance of MockFileProvider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -17,7 +17,7 @@ import (
 	"github.com/openai/openai-go/v3/shared"
 	"github.com/openai/openai-go/v3/shared/constant"
 	"github.com/stretchr/testify/require"
-	"github.com/yaroslav-koval/hange/pkg/entities"
+	"github.com/yaroslav-koval/hange/domain/entities"
 )
 
 func TestExplainProcessor_uploadFiles(t *testing.T) {

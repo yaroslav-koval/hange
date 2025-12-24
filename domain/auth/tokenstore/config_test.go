@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/yaroslav-koval/hange/domain/config/consts"
 	configurator_mock "github.com/yaroslav-koval/hange/mocks/configurator"
-	"github.com/yaroslav-koval/hange/pkg/config/consts"
 )
 
 func TestStore(t *testing.T) {

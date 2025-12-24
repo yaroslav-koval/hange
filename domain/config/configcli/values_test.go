@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/yaroslav-koval/hange/pkg/config"
+	"github.com/yaroslav-koval/hange/domain/config"
 	"github.com/yaroslav-koval/hange/pkg/consts"
 )
 

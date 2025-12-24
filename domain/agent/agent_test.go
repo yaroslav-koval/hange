@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/yaroslav-koval/hange/domain/agent/entity"
+	"github.com/yaroslav-koval/hange/domain/entities"
 	commitprocessor_mock "github.com/yaroslav-koval/hange/mocks/commitprocessor"
 	explainprocessor_mock "github.com/yaroslav-koval/hange/mocks/explainprocessor"
-	"github.com/yaroslav-koval/hange/pkg/entities"
 )
 
 func TestExplainFilesSuccess(t *testing.T) {

@@ -7,7 +7,7 @@ package agentfactory_mock
 import (
 	mock "github.com/stretchr/testify/mock"
 	"github.com/yaroslav-koval/hange/domain/agent"
-	"github.com/yaroslav-koval/hange/pkg/auth"
+	"github.com/yaroslav-koval/hange/domain/auth"
 )
 
 // NewMockAgentFactory creates a new instance of MockAgentFactory. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

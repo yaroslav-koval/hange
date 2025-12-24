@@ -7,10 +7,10 @@ package appbuilder_mock
 import (
 	mock "github.com/stretchr/testify/mock"
 	"github.com/yaroslav-koval/hange/domain/agent"
+	"github.com/yaroslav-koval/hange/domain/auth"
+	"github.com/yaroslav-koval/hange/domain/config"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
 	"github.com/yaroslav-koval/hange/domain/git"
-	"github.com/yaroslav-koval/hange/pkg/auth"
-	"github.com/yaroslav-koval/hange/pkg/config"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
 )
 
 // NewMockAppBuilder creates a new instance of MockAppBuilder. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
