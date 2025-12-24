@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/spf13/cobra"
-	"github.com/yaroslav-koval/hange/pkg/config"
+	"github.com/yaroslav-koval/hange/domain/config"
 )
 
 // versionCmd represents the version command

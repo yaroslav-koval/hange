@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider/errmapper"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
+	"github.com/yaroslav-koval/hange/domain/fileprovider/errmapper"
 )
 
 func NewOSFileContentProvider(errMapper errmapper.FileErrorMapper) fileprovider.FileContentProvider {

@@ -1,9 +1,9 @@
 package tokenstore
 
 import (
-	"github.com/yaroslav-koval/hange/pkg/auth"
-	"github.com/yaroslav-koval/hange/pkg/config"
-	"github.com/yaroslav-koval/hange/pkg/config/consts"
+	"github.com/yaroslav-koval/hange/domain/auth"
+	"github.com/yaroslav-koval/hange/domain/config"
+	"github.com/yaroslav-koval/hange/domain/config/consts"
 )
 
 func NewConfigTokenStorer(config config.Configurator) auth.TokenStorer {

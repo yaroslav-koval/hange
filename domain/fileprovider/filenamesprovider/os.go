@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
-	"github.com/yaroslav-koval/hange/pkg/fileprovider/errmapper"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
+	"github.com/yaroslav-koval/hange/domain/fileprovider/errmapper"
 )
 
 func NewOSFileNamesProvider(errMapper errmapper.FileErrorMapper) fileprovider.FileNamesProvider {

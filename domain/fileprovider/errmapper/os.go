@@ -3,7 +3,7 @@ package errmapper
 import (
 	"os"
 
-	"github.com/yaroslav-koval/hange/pkg/fileprovider"
+	"github.com/yaroslav-koval/hange/domain/fileprovider"
 )
 
 func NewOSFileErrMapper() FileErrorMapper {

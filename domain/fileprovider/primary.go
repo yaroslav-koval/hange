@@ -3,7 +3,7 @@ package fileprovider
 import (
 	"context"
 
-	"github.com/yaroslav-koval/hange/pkg/entities"
+	"github.com/yaroslav-koval/hange/domain/entities"
 )
 
 type FileProvider interface {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync/atomic"
 
-	"github.com/yaroslav-koval/hange/pkg/entities"
+	"github.com/yaroslav-koval/hange/domain/entities"
 	"golang.org/x/sync/errgroup"
 )
 
