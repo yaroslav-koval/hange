@@ -54,7 +54,7 @@ Hange can be installed by 2 ways:
 3. Download a release binary (no Go toolchain required). Example for macOS arm64:
     ```shell
     ver=v0.1.0
-    url=https://github.com/yaroslav-koval/hange/releases/download/$ver/hange_Darwin_arm64
+    url=https://github.com/yaroslav-koval/hange/releases/download/$ver/hange_darwin_arm64
     curl -sL "$url" -o hange && chmod +x hange
     ./hange version
     ```
